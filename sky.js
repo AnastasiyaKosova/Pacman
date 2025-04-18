@@ -7,6 +7,7 @@ canvas.height = window.innerHeight;
 let stars = [];
 let constellations = [];
 let hoveredConstellation = null;
+let isMouseDown = false; // Флаг состояния кнопки мыши
 
 const FOV = 300;
 let rotationX = 0;
@@ -17,16 +18,61 @@ let targetRotationSpeed = 0.05;
 
 const starSize = 1.5;
 
-// Прослушивание событий мыши
+// Обработчики событий мыши
+canvas.addEventListener("mousedown", () => {
+  isMouseDown = true;
+});
+
+canvas.addEventListener("mouseup", () => {
+  isMouseDown = false;
+});
+
+canvas.addEventListener("mouseleave", () => {
+  isMouseDown = false;
+});
+
 canvas.addEventListener("mousemove", (e) => {
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
+  hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
+
+  if (!isMouseDown) return;
+
   const dx = e.movementX;
   const dy = e.movementY;
   targetRotY += dx * 0.005;
   targetRotX += dy * 0.005;
+});
 
-  const mouseX = e.clientX;
-  const mouseY = e.clientY;
-  hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
+// Обработчики событий касания
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  isMouseDown = true;
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+});
+
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  if (!isMouseDown) return;
+  
+  const touch = e.touches[0];
+  const dx = touch.clientX - touchStartX;
+  const dy = touch.clientY - touchStartY;
+  
+  targetRotY += dx * 0.005;
+  targetRotX += dy * 0.005;
+
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+});
+
+canvas.addEventListener("touchend", () => {
+  isMouseDown = false;
 });
 
 function generateStars(count) {
