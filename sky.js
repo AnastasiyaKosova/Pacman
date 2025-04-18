@@ -157,25 +157,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function drawMeteors() {
     meteors.forEach(m => {
-        const gradient = ctx.createLinearGradient(m.x, m.y, m.x - m.speedX * m.length, m.y - m.speedY * m.length);
-        gradient.addColorStop(0, `rgba(255, 255, 255, ${m.opacity})`);
-        gradient.addColorStop(0.3, `rgba(255, 200, 150, ${m.opacity * 0.8})`);
-        gradient.addColorStop(1, `rgba(255, 100, 0, 0)`);
+        const gradient = ctx.createLinearGradient(
+            m.x, m.y,
+            m.x - m.speedX * m.length,
+            m.y - m.speedY * m.length
+        );
+        gradient.addColorStop(0, `rgba(255,255,255,${m.opacity})`);
+        gradient.addColorStop(0.3, `rgba(0,191,255,${m.opacity * 0.7})`);
+        gradient.addColorStop(1, `rgba(0,0,0,0)`);
 
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(m.x, m.y);
         ctx.lineTo(m.x - m.speedX * m.length, m.y - m.speedY * m.length);
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 3;
-        ctx.lineCap = "round";
         ctx.stroke();
 
-       
         ctx.beginPath();
-        ctx.arc(m.x, m.y, 3 + Math.random() * 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${m.opacity})`;
+        ctx.arc(m.x, m.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${m.opacity})`;
+        ctx.shadowColor = `rgba(255,255,255,0.8)`;
         ctx.shadowBlur = 10;
-        ctx.shadowColor = 'white';
         ctx.fill();
         ctx.shadowBlur = 0;
     });
@@ -298,3 +300,9 @@ document.addEventListener('DOMContentLoaded', () => {
       loadConstellations();
   });
 });
+
+
+
+
+
+
