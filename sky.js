@@ -240,4 +240,15 @@ function raDecToXYZ(ra, dec) {
     };
 }
 
-loadConstellations();
+
+const startButton = document.getElementById('start-btn');
+const startScreen = document.getElementById('start-screen');
+const canvasElement = document.getElementById("sky");
+
+startButton.addEventListener('click', () => {
+  startScreen.style.display = 'none';
+  canvasElement.style.display = 'block';
+
+  loadConstellations();
+  draw();
+});
