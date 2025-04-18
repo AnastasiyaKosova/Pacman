@@ -7,7 +7,8 @@ canvas.height = window.innerHeight;
 let stars = [];
 let constellations = [];
 let hoveredConstellation = null;
-let isMouseDown = false; // Флаг состояния кнопки мыши
+let hoveredStar = null;
+let isMouseDown = false;
 
 const FOV = 300;
 let rotationX = 0;
@@ -15,135 +16,121 @@ let rotationY = 0;
 let targetRotX = 0;
 let targetRotY = 0;
 let targetRotationSpeed = 0.05;
-
 const starSize = 1.5;
 
-// Обработчики событий мыши
-canvas.addEventListener("mousedown", () => {
-  isMouseDown = true;
-});
-
-canvas.addEventListener("mouseup", () => {
-  isMouseDown = false;
-});
-
-canvas.addEventListener("mouseleave", () => {
-  isMouseDown = false;
-});
+canvas.addEventListener("mousedown", () => isMouseDown = true);
+canvas.addEventListener("mouseup", () => isMouseDown = false);
+canvas.addEventListener("mouseleave", () => isMouseDown = false);
 
 canvas.addEventListener("mousemove", (e) => {
-  const mouseX = e.clientX;
-  const mouseY = e.clientY;
-  hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
-
-  if (!isMouseDown) return;
-
-  const dx = e.movementX;
-  const dy = e.movementY;
-  targetRotY += dx * 0.005;
-  targetRotX += dy * 0.005;
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
+    hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY);
+    
+    if (isMouseDown) {
+        targetRotY += e.movementX * 0.005;
+        targetRotX += e.movementY * 0.005;
+    }
 });
 
-// Обработчики событий касания
 let touchStartX = 0;
 let touchStartY = 0;
-
 canvas.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  isMouseDown = true;
-  const touch = e.touches[0];
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
+    e.preventDefault();
+    isMouseDown = true;
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
 });
 
 canvas.addEventListener("touchmove", (e) => {
-  e.preventDefault();
-  if (!isMouseDown) return;
-  
-  const touch = e.touches[0];
-  const dx = touch.clientX - touchStartX;
-  const dy = touch.clientY - touchStartY;
-  
-  targetRotY += dx * 0.005;
-  targetRotX += dy * 0.005;
-
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
+    e.preventDefault();
+    if (!isMouseDown) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+    targetRotY += dx * 0.005;
+    targetRotX += dy * 0.005;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
 });
 
-canvas.addEventListener("touchend", () => {
-  isMouseDown = false;
-});
+canvas.addEventListener("touchend", () => isMouseDown = false);
 
 function generateStars(count) {
-  stars = [];
-  for (let i = 0; i < count; i++) {
-    const theta = Math.random() * 2 * Math.PI;
-    const phi = Math.acos(2 * Math.random() - 1);
-
-    const x = Math.sin(phi) * Math.cos(theta);
-    const y = Math.sin(phi) * Math.sin(theta);
-    const z = Math.cos(phi);
-
-    stars.push({
-      x, y, z,
-      brightness: Math.random(),
-      name: `Star ${i + 1}`,
-      color: getStarColor()  // Убираем случайные цвета и ставим холодный
-    });
-  }
-}
-
-function getStarColor() {
-  // Холодные цвета для звёзд (светло-голубые, белые)
-  return '173, 216, 230';  // Цвета "lightblue" для холодных звёзд
+    stars = [];
+    const classes = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
+    for (let i = 0; i < count; i++) {
+        const theta = Math.random() * 2 * Math.PI;
+        const phi = Math.acos(2 * Math.random() - 1);
+        stars.push({
+            x: Math.sin(phi) * Math.cos(theta),
+            y: Math.sin(phi) * Math.sin(theta),
+            z: Math.cos(phi),
+            brightness: Math.random(),
+            name: `HIP-${Math.floor(10000 + Math.random() * 90000)}`,
+            color: '173, 216, 230',
+            spectral: classes[Math.floor(Math.random() * classes.length)]
+        });
+    }
 }
 
 function rotateStar(star, rx, ry) {
-  let x = star.x * Math.cos(ry) - star.z * Math.sin(ry);
-  let z = star.x * Math.sin(ry) + star.z * Math.cos(ry);
-  let y = star.y;
-
-  let y2 = y * Math.cos(rx) - z * Math.sin(rx);
-  z = y * Math.sin(rx) + z * Math.cos(rx);
-  y = y2;
-
-  return { x, y, z };
+    let x = star.x * Math.cos(ry) - star.z * Math.sin(ry);
+    let z = star.x * Math.sin(ry) + star.z * Math.cos(ry);
+    let y = star.y;
+    let y2 = y * Math.cos(rx) - z * Math.sin(rx);
+    z = y * Math.sin(rx) + z * Math.cos(rx);
+    y = y2;
+    return { x, y, z };
 }
 
 function project(star) {
-  const scale = FOV / (FOV + star.z);
-  const x = star.x * scale * canvas.width / 2 + canvas.width / 2;
-  const y = star.y * scale * canvas.height / 2 + canvas.height / 2;
-  return [x, y];
+    const scale = FOV / (FOV + star.z);
+    return [
+        star.x * scale * canvas.width / 2 + canvas.width / 2,
+        star.y * scale * canvas.height / 2 + canvas.height / 2
+    ];
+}
+
+function getHoveredStar(mouseX, mouseY) {
+    let closest = null;
+    let minDist = Infinity;
+    stars.forEach(star => {
+        const r = rotateStar(star, rotationX, rotationY);
+        const [x, y] = project(r);
+        const dist = Math.hypot(mouseX - x, mouseY - y);
+        if (dist < starSize * 4 && dist < minDist) {
+            minDist = dist;
+            closest = star;
+        }
+    });
+    return closest;
 }
 
 function getHoveredConstellation(mouseX, mouseY) {
-  const projectedStars = stars.map((star) => {
-    const r = rotateStar(star, rotationX, rotationY);
-    const [x, y] = project(r);
-    return { ...r, x, y };
-  });
+  for (const c of constellations) {
+      const proj = c.stars.map(s => {
+          const r = rotateStar(s, rotationX, rotationY);
+          const [x, y] = project(r);
+          return { x, y };
+      });
 
-  for (const constellation of constellations) {
-    const projected = constellation.stars.map(s => {
-      const r = rotateStar(s, rotationX, rotationY);
-      const [x, y] = project(r);
-      return { ...r, x, y };
-    });
+      // Calculate the bounding box around the constellation's stars
+      const boundingBox = {
+          minX: Math.min(...proj.map(p => p.x)),
+          maxX: Math.max(...proj.map(p => p.x)),
+          minY: Math.min(...proj.map(p => p.y)),
+          maxY: Math.max(...proj.map(p => p.y))
+      };
 
-    for (const [i1, i2] of constellation.lines) {
-      const s1 = projected[i1];
-      const s2 = projected[i2];
-      const distance1 = Math.sqrt(Math.pow(mouseX - s1.x, 2) + Math.pow(mouseY - s1.y, 2));
-      const distance2 = Math.sqrt(Math.pow(mouseX - s2.x, 2) + Math.pow(mouseY - s2.y, 2));
-
-      if (distance1 < starSize * 4 || distance2 < starSize * 4) {
-        return constellation; 
+      // Check if the mouse is within the bounding box
+      if (mouseX >= boundingBox.minX - 50 && mouseX <= boundingBox.maxX + 50 &&
+          mouseY >= boundingBox.minY - 50 && mouseY <= boundingBox.maxY + 50) {
+          return c;
       }
-    }
   }
-
   return null;
 }
 
@@ -154,88 +141,103 @@ function draw() {
   rotationX += (targetRotX - rotationX) * targetRotationSpeed;
   rotationY += (targetRotY - rotationY) * targetRotationSpeed;
 
-  // Отображение звезд с холодным цветом
-  stars.forEach((star) => {
-    const r = rotateStar(star, rotationX, rotationY);
-    const [x, y] = project(r);
-    const size = 1.5 + star.brightness * 2;
-    const alpha = 0.7 + 0.3 * Math.sin(Date.now() * 0.002 + star.brightness * 10);
+  const time = Date.now() * 0.002; // Time variable for pulsation
 
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, 2 * Math.PI);
-    ctx.fillStyle = `rgba(${star.color}, ${alpha})`;
-    ctx.fill();
-  });
-
-  // Отображение линий созвездий
-  constellations.forEach((constellation) => {
-    const projected = constellation.stars.map(s => {
-      const r = rotateStar(s, rotationX, rotationY);
+  stars.forEach(star => {
+      const r = rotateStar(star, rotationX, rotationY);
       const [x, y] = project(r);
-      return { ...r, x, y };
-    });
 
-    constellation.lines.forEach(([i1, i2]) => {
-      const s1 = projected[i1];
-      const s2 = projected[i2];
-      if (!s1 || !s2 || s1.z < -1 || s2.z < -1) return;
+      // Calculate pulsing effect
+      const pulse = 0.5 + 0.5 * Math.sin(time + star.brightness * 10); // Pulsate between 0 and 1
 
+      // Glow effect
       ctx.beginPath();
-      ctx.moveTo(s1.x, s1.y);
-      ctx.lineTo(s2.x, s2.y);
-      ctx.strokeStyle = "rgba(0,200,255,0.9)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
+      ctx.arc(x, y, (3 + star.brightness * 5) * pulse, 0, Math.PI * 2); // Larger circle for glow
+      ctx.fillStyle = `rgba(173, 216, 230, 0.5)`; // Light blue glow
+      ctx.fill();
 
-    if (constellation === hoveredConstellation) {
-      const centerX = projected.reduce((sum, star) => sum + star.x, 0) / projected.length;
-      const centerY = projected.reduce((sum, star) => sum + star.y, 0) / projected.length;
-
-      ctx.font = "20px Arial";
-      ctx.fillStyle = "red";
-      ctx.fillText(constellation.name, centerX + 10, centerY + 10);
-
-      ctx.font = "16px Arial";
-      ctx.fillStyle = "white";
-      ctx.fillText(constellation.info, centerX + 10, centerY + 30);
-    }
+      // Bright star
+      ctx.beginPath();
+      ctx.arc(x, y, (1.5 + star.brightness * 2) * pulse, 0, Math.PI * 2); // Smaller circle for star
+      ctx.fillStyle = `rgba(173, 216, 230, 1)`; // Bright star color
+      ctx.fill();
   });
+
+  constellations.forEach(c => {
+      const proj = c.stars.map(s => {
+          const r = rotateStar(s, rotationX, rotationY);
+          const [x, y] = project(r);
+          return { x, y, z: r.z };
+      });
+      c.lines.forEach(([i1, i2]) => {
+          const s1 = proj[i1];
+          const s2 = proj[i2];
+          if (s1.z < -1 || s2.z < -1) return;
+          ctx.beginPath();
+          ctx.moveTo(s1.x, s1.y);
+          ctx.lineTo(s2.x, s2.y);
+          ctx.strokeStyle = "rgba(0,200,255,0.9)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+      });
+
+      // Show constellation info if hovered
+      if (c === hoveredConstellation) {
+          const cx = proj.reduce((a, b) => a + b.x, 0) / proj.length;
+          const cy = proj.reduce((a, b) => a + b.y, 0) / proj.length;
+          ctx.fillStyle = "red";
+          ctx.font = "20px Arial";
+          ctx.fillText(c.name, cx + 10, cy + 10);
+          ctx.font = "16px Arial";
+          ctx.fillStyle = "white";
+          ctx.fillText(c.info, cx + 10, cy + 30);
+      }
+  });
+
+  if (hoveredStar && !hoveredConstellation) {
+      const r = rotateStar(hoveredStar, rotationX, rotationY);
+      const [x, y] = project(r);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 30, y - 50);
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
+      ctx.stroke();
+      ctx.fillStyle = "rgba(0,0,0,0.8)";
+      ctx.fillRect(x + 35, y - 55, 150, 70);
+      ctx.fillStyle = "white";
+      ctx.font = "14px Arial";
+      ctx.fillText(hoveredStar.name, x + 45, y - 35);
+      ctx.fillText(`Spectral: ${hoveredStar.spectral}`, x + 45, y - 15);
+      ctx.fillText(`Brightness: ${hoveredStar.brightness.toFixed(2)}`, x + 45, y + 5);
+  }
 
   requestAnimationFrame(draw);
 }
 
-// Загрузка созвездий
 function loadConstellations() {
-  fetch("constellations.json")
-    .then((res) => res.json())
-    .then((data) => {
-      constellations = data.map(c => {
-        const stars = c.stars.map(s => raDecToXYZ(s.ra, s.dec));
-        return {
-          name: c.name,
-          stars,
-          lines: c.lines,
-          info: c.info || "Нет информации"
-        };
-      });
-
-      generateStars(300);  // Перегенерируем звезды
-      draw();
-    })
-    .catch((error) => {
-      console.error("Ошибка загрузки созвездий:", error);
-    });
+    fetch("constellations.json")
+        .then(res => res.json())
+        .then(data => {
+            constellations = data.map(c => ({
+                name: c.name,
+                stars: c.stars.map(s => raDecToXYZ(s.ra, s.dec)),
+                lines: c.lines,
+                info: c.info || "No information"
+            }));
+            generateStars(300);
+            draw();
+        })
+        .catch(console.error);
 }
 
-// Преобразование координат прямого восхождения и склонения в xyz
 function raDecToXYZ(ra, dec) {
-  const raRad = ra / 24 * 2 * Math.PI;
-  const decRad = dec * Math.PI / 180;
-  const x = Math.cos(decRad) * Math.cos(raRad);
-  const y = Math.cos(decRad) * Math.sin(raRad);
-  const z = Math.sin(decRad);
-  return { x, y, z };
+    const raRad = ra / 24 * 2 * Math.PI;
+    const decRad = dec * Math.PI / 180;
+    return {
+        x: Math.cos(decRad) * Math.cos(raRad),
+        y: Math.cos(decRad) * Math.sin(raRad),
+        z: Math.sin(decRad)
+    };
 }
 
 loadConstellations();
