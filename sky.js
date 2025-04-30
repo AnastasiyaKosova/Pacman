@@ -22,18 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Метеоры
     let meteors = [];
 
-    const solarSystem = [
-        { name: "Mercury", distance: 0.05, size: 2, color: "#aaa", speed: 0.04, tilt: 7 * Math.PI / 180 },
-        { name: "Venus", distance: 0.08, size: 3, color: "#cc9", speed: 0.03, tilt: 3.4 * Math.PI / 180 },
-        { name: "Earth", distance: 0.11, size: 3.5, color: "3af", speed: 0.025, tilt: 0},
-        { name: "Mars", distance: 0.14, size: 3, color: "#f54", speed: 0.022, tilt: 1.85 * Math.PI / 180 },
-        { name: "Jupiter", distance: 0.20, size: 5, color: "#fcd", speed: 0.015, tilt: 1.3 * Math.PI / 180 },
-        { name: "Saturn", distance: 0.26, size: 4.5, color: "#fc9", speed: 0.012, tilt: 2.5 * Math.PI / 180 },
-        { name: "Uranus", distance: 0.31, size: 4, color: "#9cf", speed: 0.01, tilt: 0.8 * Math.PI / 180 },
-        { name: "Neptune", distance: 0.36, size: 4, color: "#69f", speed: 0.099, tilt: 1.8 * Math.PI / 180 },
 
-
-    ];
   
     canvas.addEventListener("mousedown", () => isMouseDown = true);
     canvas.addEventListener("mouseup", () => isMouseDown = false);
@@ -44,12 +33,143 @@ document.addEventListener('DOMContentLoaded', () => {
         const mouseY = e.clientY;
         hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
         hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY);
-  
+
         if (isMouseDown) {
             targetRotY += e.movementX * 0.005;
             targetRotX += e.movementY * 0.005;
         }
+
+        const rect = canvas.getBoundingClientRect();
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+
+        let hoveredPlanet = null;
+        const time = Date.now() * 0.002;
+
+        solarSystem.forEach(planet => {
+            const angle = time * planet.speed + solarSystem.indexOf(planet);
+            const x3D = Math.cos(angle) * planet.distance;
+            const y3D = Math.sin(angle) * planet.distance * Math.cos(planet.tilt);
+            const z3D = Math.sin(angle) * planet.distance * Math.sin(planet.tilt);
+
+            const rotated = rotateStar({ x: x3D, y: y3D, z: z3D }, rotationX, rotationY);
+            const [x, y] = project(rotated);
+            const dist = Math.hypot(canvasX - x, canvasY - y);
+
+            if (dist < planet.size + 15) { 
+                hoveredPlanet = { 
+                    ...planet, 
+                    x: e.clientX, 
+                    y: e.clientY 
+                };
+            }
+        });
+
+        const infoBox = document.getElementById("planet-info");
+        if (hoveredPlanet) {
+            infoBox.style.left = `${hoveredPlanet.x + 15}px`;
+            infoBox.style.top = `${hoveredPlanet.y + 15}px`;
+            document.getElementById("planet-img").src = hoveredPlanet.img;
+            document.getElementById("planet-name").textContent = hoveredPlanet.name;
+            document.getElementById("planet-desc").textContent = hoveredPlanet.description;
+            infoBox.style.display = "block";
+        } else {
+            infoBox.style.display = "none";
+        }
     });
+
+    const solarSystem = [
+        { 
+            name: "Mercury",
+            distance: 0.05,
+            size: 2,
+            color: "#aaa",
+            speed: 0.04,
+            tilt: 7 * Math.PI / 180,
+            img: "images/mercury.jpg",
+            description: "Самая маленькая планета Солнечной системы, ближайшая к Солнцу. Имеет кратерированную поверхность и экстремальные перепады температур."
+        },
+        { 
+            name: "Venus",
+            distance: 0.08,
+            size: 3,
+            color: "#cc9",
+            speed: 0.03,
+            tilt: 3.4 * Math.PI / 180,
+            img: "images/venus.jpg",
+            description: "Самая горячая планета с плотной атмосферой из углекислого газа. Вулканический ландшафт покрыт плотными облаками серной кислоты."
+        },
+        { 
+            name: "Earth",
+            distance: 0.11,
+            size: 3.5,
+            color: "#3af",
+            speed: 0.025,
+            tilt: 0,
+            img: "images/earth.jpg",
+            description: "Единственная известная планета с жизнью. 71% поверхности покрыт водой. Имеет мощное магнитное поле и спутник - Луну."
+        },
+        { 
+            name: "Mars",
+            distance: 0.14,
+            size: 3,
+            color: "#f54",
+            speed: 0.022,
+            tilt: 1.85 * Math.PI / 180,
+            img: "images/mars.jpg",
+            description: "Красная планета с самой высокой горой в Солнечной системе (Олимп). Имеет два спутника неправильной формы - Фобос и Деймос."
+        },
+        { 
+            name: "Jupiter",
+            distance: 0.20,
+            size: 5,
+            color: "#fcd",
+            speed: 0.015,
+            tilt: 1.3 * Math.PI / 180,
+            img: "images/jupiter.jpg",
+            description: "Крупнейший газовый гигант. Обладает мощным радиационным поясом. Известен Большим Красным Пятном - гигантским штормом."
+        },
+        { 
+            name: "Saturn",
+            distance: 0.26,
+            size: 4.5,
+            color: "#fc9",
+            speed: 0.012,
+            tilt: 2.5 * Math.PI / 180,
+            img: "images/saturn.jpg",
+            description: "Известен своими кольцами из льда и камней. Имеет 83 подтвержденных спутника, включая Титан с плотной атмосферой."
+        },
+        { 
+            name: "Uranus",
+            distance: 0.31,
+            size: 4,
+            color: "#9cf",
+            speed: 0.01,
+            tilt: 0.8 * Math.PI / 180,
+            img: "images/uranus.jpg",
+            description: "Ледяной гигант с экстремальным наклоном оси (98°). Обладает слабой системой колец и 27 известными спутниками."
+        },
+        { 
+            name: "Neptune",
+            distance: 0.36,
+            size: 4,
+            color: "#69f",
+            speed: 0.009,
+            tilt: 1.8 * Math.PI / 180,
+            img: "images/neptune.jpg",
+            description: "Самый ветреный мир с скоростями ветра до 2100 км/ч. Обладает темным пятном - гигантским антициклоном."
+        },
+        { 
+            name: "Sun",
+            distance: 0,
+            size: 10,
+            color: "#FFA500",
+            speed: 0,
+            tilt: 0,
+            img: "images/Sun.jpeg",
+            description: "Звезда класса желтый карлик. Составляет 99.86% массы всей Солнечной системы. Температура ядра - 15 млн °C"
+        }
+    ];
   
     let touchStartX = 0;
     let touchStartY = 0;
