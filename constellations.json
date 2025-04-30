@@ -10,7 +10,7 @@
       {"ra": 5.608, "dec": -5.943}
     ],
     "lines": [[0,1],[1,2],[2,3],[3,4],[2,4],[0,3]],
-    "image": "Constellations/Орион.jpg",
+    "image": "Constellations/Орион.jpeg",
     "info": "Пояс Ориона с Бетельгейзе и Ригелем"
   },
   {
@@ -25,7 +25,7 @@
       {"ra": 12.443, "dec": 57.033}
     ],
     "lines": [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[2,6]],
-    "image": "Constellations/Большая медведица.jpg",
+    "image": "Constellations/Большая медведица.jpeg",
     "info": "Ковш с ручкой"
   },
   {
@@ -38,7 +38,7 @@
       {"ra": 13.792, "dec": 74.233}
     ],
     "lines": [[0,1],[1,2],[2,3],[3,4],[4,0]],
-    "image": "Constellations/Малая Медведица.jpg",
+    "image": "Constellations/Малая Медведица.jpeg",
     "info": "Малый Ковш с Полярной звездой"
   },
   {
@@ -50,7 +50,7 @@
       {"ra": 20.690, "dec": 33.970}
     ],
     "lines": [[0,1],[1,2],[1,3],[3,0]],
-    "image": "Constellations/Лебедь.jpg",
+    "image": "Constellations/Лебедь.jpeg",
     "info": "Северный Крест"
   },
   {
@@ -62,7 +62,7 @@
       {"ra": 1.906, "dec": 63.670}
     ],
     "lines": [[0,1],[1,2],[2,3],[3,0]],
-    "image": "Constellations/Кассиопея.jpg",
+    "image": "Constellations/Кассиопея.jpeg",
     "info": "W-образная форма"
   },
   {
@@ -73,7 +73,7 @@
       {"ra": 2.904, "dec": 55.895}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Персей.jpg",
+    "image": "Constellations/Персей.jpeg",
     "info": "Алголь (Демонская звезда)"
   },
   {
@@ -84,7 +84,7 @@
       {"ra": 2.097, "dec": 42.326}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Андромеда.jpg",
+    "image": "Constellations/Андромеда.jpeg",
     "info": "Галактика Андромеды (M31)"
   },
   {
@@ -95,7 +95,7 @@
       {"ra": 21.736, "dec": 9.875}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Пегас.jpg",
+    "image": "Constellations/Пегас.jpeg",
     "info": "Большой Квадрат"
   },
   {
@@ -106,7 +106,7 @@
       {"ra": 12.342, "dec": -1.449}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Дева.jpg",
+    "image": "Constellations/Дева.jpeg",
     "info": "Спика (α Девы)"
   },
   {
@@ -117,7 +117,7 @@
       {"ra": 16.836, "dec": -28.216}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Скорпион.jpg",
+    "image": "Constellations/Скорпион.jpeg",
     "info": "Антарес (Красный гигант)"
   },
   {
@@ -128,7 +128,7 @@
       {"ra": 19.043, "dec": -27.670}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Стрелец.jpg",
+    "image": "Constellations/Стрелец.jpeg",
     "info": "Театр Млечного Пути"
   },
   {
@@ -139,7 +139,7 @@
       {"ra": 11.237, "dec": 15.429}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Лев.jpg",
+    "image": "Constellations/Лев.jpeg",
     "info": "Сердце Льва (Регул)"
   },
   {
@@ -150,7 +150,7 @@
       {"ra": 8.291, "dec": 19.805}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Рак.jpg",
+    "image": "Constellations/Рак.jpeg",
     "info": "Ясли (рассеянное скопление)"
   },
   {
@@ -161,7 +161,7 @@
       {"ra": 15.592, "dec": -12.845}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Весы.jpg",
+    "image": "Constellations/Весы.jpeg",
     "info": "Единственное неживое зодиакальное созвездие"
   },
   {
@@ -172,7 +172,7 @@
       {"ra": 21.784, "dec": -18.299}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Козерог.jpg",
+    "image": "Constellations/Козерог.jpeg",
     "info": "Морской Козел"
   },
   {
@@ -183,7 +183,7 @@
       {"ra": 1.852, "dec": 3.282}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Рыбы.jpg",
+    "image": "Constellations/Рыбы.jpeg",
     "info": "Созвездие в форме буквы V"
   },
   {
@@ -194,7 +194,7 @@
       {"ra": 17.962, "dec": 29.247}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Геркулес.jpg",
+    "image": "Constellations/Геркулес.jpeg",
     "info": "Глобулярное скопление M13"
   },
   {
@@ -205,7 +205,7 @@
       {"ra": 12.444, "dec": -48.959}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Центавр.jpg",
+    "image": "Constellations/Центавр.jpeg",
     "info": "Альфа Центавра (ближайшая звездная система)"
   },
   {
@@ -216,7 +216,7 @@
       {"ra": 18.746, "dec": 36.900}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Лира.jpg",
+    "image": "Constellations/Лира.jpeg",
     "info": "Вега (5-я по яркости звезда)"
   },
   {
@@ -227,7 +227,7 @@
       {"ra": 1.885, "dec": 31.381}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Треугольник.jpg",
+    "image": "Constellations/Треугольник.jpeg",
     "info": "Галактика Треугольника (M33)"
   },
   {
@@ -238,7 +238,7 @@
       {"ra": 15.826, "dec": 2.195}
     ],
     "lines": [[0,1],[1,2],[2,0]],
-    "image": "Constellations/Змея.jpg",
+    "image": "Constellations/Змея.jpeg",
     "info": "Единственное разделенное созвездие"
   }
 ]
