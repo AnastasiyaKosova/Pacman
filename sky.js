@@ -465,8 +465,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     stars: c.stars.map(s => raDecToXYZ(s.ra, s.dec)),
                     lines: c.lines,
                     info: c.info || "No information"
-                }));
-                generateStars(300);
+                }));              
+                generateStars(1000);
                 draw();
                 setInterval(spawnMeteor, 1000);
             })
