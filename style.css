@@ -35,3 +35,10 @@ canvas {
     left: 0;
     z-index: 1;
 }
+
+.constellation-card {
+    position: fixed;
+    max-width: 200px;
+    /* остальные стили см. в JS */
+}
+

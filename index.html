@@ -108,7 +108,7 @@
 </head>
 <body>
     <div id="start-screen">
-        <h1>Космическое Приключение</h1>
+        <h1>Callisto</h1>
         <button id="start-btn">Запуск Симуляции</button>
     </div>
     <canvas id="sky"></canvas>
@@ -117,6 +117,17 @@
         📱 На сенсорных экранах - свайп
     </div>
     
+    <div id="constellation-cards" style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
+"></div>
 
     <div id="planet-info" style="
     position: absolute;
@@ -134,7 +145,40 @@
     <h3 id="planet-name" style="margin: 5px 0 2px;"></h3>
     <p id="planet-desc" style="font-size: 14px;"></p>
 </div>
+<button id="showStarsLessonBtn" 
+        style="position:absolute; top:10px; left:10px; z-index:1000;">
+  Звёзды
+</button>
+<button id="showGalaxiesLessonBtn" 
+        style="position:absolute; top:50px; left:10px; z-index:1000;">
+  Галактики
+</button>
+<button id="showHistoryLessonBtn" 
+        style="position:absolute; top:90px; left:10px; z-index:1000;">
+  История астрономии
+</button>
+<button id="showExplorationLessonBtn" 
+        style="position:absolute; top:130px; left:10px; z-index:1000;">
+  Космические исследования
+</button>
 
+<div id="lessonBox" style="display:none; position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.85); color:#fff; padding:20px; border-radius:10px; width:320px; z-index:100;">
+    <h2 id="lessonTitle"></h2>
+    <p id="lessonContent"></p>
+  
+    <div id="quizContainer" style="margin-top:15px;">
+      <p id="quizQuestion" style="font-weight:bold;"></p>
+      <div id="quizOptions"></div>
+      <button id="nextQuestionBtn" style="margin-top:10px; display:none;">Следующий вопрос</button>
+      <p id="quizResult" style="margin-top:10px;"></p>
+    </div>
+  
+    <button onclick="closeLesson()" style="margin-top:15px;">Закрыть</button>
+  </div>
+  <audio id="background-music" loop autoplay>
+    <source src="assets/music/interstellar_08. Mountains.mp3" type="audio/mp3">
+    Ваш браузер не поддерживает элемент audio.
+</audio>
     <script src="sky.js"></script>
 </body>
 </html>
