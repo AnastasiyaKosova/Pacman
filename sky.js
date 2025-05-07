@@ -636,21 +636,21 @@ document.addEventListener("DOMContentLoaded", () => {
             const card = document.createElement("div");
             card.className = "constellation-card";
             card.style.cssText = `
-          position: fixed;
-          background: rgba(0,0,0,0.9);
-          border: 1px solid #fff;
-          border-radius: 8px;
-          padding: 0px;
-          color: #fff;
-          display: none;
-          pointer-events: none;
-          max-width: 300px;
-          width: auto;
-          min-width: 200px;
-          max-height: 70vh;
-          overflow-y: auto;
-          backdrop-filter: blur(5px);
-      `;
+            position: fixed;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid #fff;
+            border-radius: 8px;
+            padding: 0px;
+            color: #fff;
+            display: none;
+            pointer-events: none;
+            max-width: 300px;
+            width: auto;
+            min-width: 200px;
+            max-height: 70vh;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        `;
   
             // Заголовок
             const title = document.createElement("h4");
@@ -686,13 +686,13 @@ document.addEventListener("DOMContentLoaded", () => {
               img.src = c.image;
               img.alt = c.name;
               img.style.cssText = `
-              width: 100%;
-              height: 100%;
-              object-fit: contain; /* Изменено на contain */
-              object-position: center; /* Центрируем изображение */
-              border-radius: 0.5px;
-              border: 1px solid rgba(255,255,255,0.1);
-          `;
+                width: 100%;
+                height: 100%;
+                object-fit: contain; /* Изменено на contain */
+                object-position: center; /* Центрируем изображение */
+                border-radius: 0.5px;
+                border: 1px solid rgba(255,255,255,0.1);
+            `;
   
               imgWrapper.appendChild(img);
               card.appendChild(imgWrapper);
@@ -795,12 +795,11 @@ document.addEventListener("DOMContentLoaded", () => {
             i === q.correctIndex ? "#0f0" : i === selected ? "#f00" : "#333";
           btn.disabled = true;
         }
-        );
-        // вывод результ
-        document.getElementById("quizResult").textContent = correct
-          ? "✅ Правильно!"
-          : "❌ Неправильно.";
-        // кнопку след или итог
+      );
+      // вывод результ
+      document.getElementById("quizResult").textContent = correct
+        ? "✅ Правильно!"
+        : "❌ Неправильно.";// кнопку след или итог
         const nextBtn = document.getElementById("nextQuestionBtn");
         if (currentQuestion < currentLesson.quiz.length - 1) {
           nextBtn.textContent = "Следующий вопрос";
