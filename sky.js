@@ -45,127 +45,83 @@ document.addEventListener("DOMContentLoaded", () => {
     let touchStartY = 0;
   
     canvas.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      isMouseDown = true;
-      const touch = e.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-      handleMouseMove(touch.clientX, touch.clientY); // Обработка касания как наведения
-    });
-  
-    canvas.addEventListener('touchmove', (e) => {
         e.preventDefault();
+        isMouseDown = true;
         const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = touch.clientX - rect.left;
-        const mouseY = touch.clientY - rect.top;
-        handleMouseMove(mouseX, mouseY);
-      });
-  
-      canvas.addEventListener('touchend', (e) => {
-        const cards = document.querySelectorAll(".constellation-card");
-        cards.forEach(card => card.style.display = "none");
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        handleMouseMove(touch.clientX, touch.clientY);
       });
       
+      canvas.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        if (!isMouseDown) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        
+        // Увеличим чувствительность для мобильных устройств
+        targetRotY += dx * 0.02;
+        targetRotX += dy * 0.02;
+        
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        handleMouseMove(touch.clientX, touch.clientY);
+      });
+
+      
+  
+    canvas.addEventListener("touchend", () => (isMouseDown = false));
     canvas.addEventListener("touchcancel", () => (isMouseDown = false));
   
     function handleMouseMove(mouseX, mouseY) {
-        // Определение типа устройства
-        const isTouchDevice = 'ontouchstart' in window;
-        
-        // Обновление позиции курсора с учетом canvas
-        const rect = canvas.getBoundingClientRect();
-        const canvasX = mouseX - rect.left;
-        const canvasY = mouseY - rect.top;
-      
-        // Обработка созвездий и звезд
-        hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
-        hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY);
-      
-        // Обработка планет
-        let hoveredPlanet = null;
-        const currentTime = Date.now() * 0.002;
-      
-        solarSystem.forEach((planet, index) => {
-          const angle = currentTime * planet.speed + index;
-          const position = getPlanetPosition(planet, angle);
-          const rotated = rotateStar(position, rotationX, rotationY);
-          const [x, y] = project(rotated);
-          
-          if (isPointInCircle(canvasX, canvasY, x, y, planet.size + 15)) {
-            hoveredPlanet = { ...planet, x: mouseX, y: mouseY };
-          }
-        });
-      
-        // Обновление информации о планетах
-        updatePlanetInfo(hoveredPlanet);
-      
-        // Обработка карточек созвездий
-        const cards = document.querySelectorAll(".constellation-card");
-        cards.forEach(card => card.style.display = "none");
-      
-        if (hoveredConstellation) {
-          const foundIndex = constellations.findIndex(c => c === hoveredConstellation);
-          if (foundIndex >= 0) {
-            const card = cards[foundIndex];
-            showConstellationCard(card, mouseX, mouseY, isTouchDevice);
-          }
+      // Унифицированная функция для обработки движения мыши и касания
+      hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
+      hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY);
+  
+      const rect = canvas.getBoundingClientRect();
+      const canvasX = mouseX - rect.left;
+      const canvasY = mouseY - rect.top;
+  
+      let hoveredPlanet = null;
+      const time = Date.now() * 0.002;
+  
+      solarSystem.forEach((planet) => {
+        const angle = time * planet.speed + solarSystem.indexOf(planet);
+        const x3D = Math.cos(angle) * planet.distance;
+        const y3D = Math.sin(angle) * planet.distance * Math.cos(planet.tilt);
+        const z3D = Math.sin(angle) * planet.distance * Math.sin(planet.tilt);
+  
+        const rotated = rotateStar(
+          { x: x3D, y: y3D, z: z3D },
+          rotationX,
+          rotationY
+        );
+        const [x, y] = project(rotated);
+        const dist = Math.hypot(canvasX - x, canvasY - y);
+  
+        if (dist < planet.size + 15) {
+          hoveredPlanet = {
+            ...planet,
+            x: mouseX,
+            y: mouseY,
+          };
         }
-      
-        // Оптимизация для мобильных устройств
-        if (isTouchDevice) {
-          requestAnimationFrame(() => {
-            canvas.style.transform = "translateZ(0)"; // Запуск GPU-ускорения
-          });
-        }
-      }
-      
-      // Вспомогательные функции
-      function getPlanetPosition(planet, angle) {
-        return {
-          x: Math.cos(angle) * planet.distance,
-          y: Math.sin(angle) * planet.distance * Math.cos(planet.tilt),
-          z: Math.sin(angle) * planet.distance * Math.sin(planet.tilt)
-        };
-      }
-      
-      function isPointInCircle(x1, y1, x2, y2, radius) {
-        return Math.hypot(x1 - x2, y1 - y2) < radius;
-      }
-      
-      function updatePlanetInfo(planet) {
-        const infoBox = document.getElementById("planet-info");
-        if (!planet) {
-          infoBox.style.display = "none";
-          return;
-        }
-      
-        // Адаптивное позиционирование
-        const maxX = window.innerWidth - infoBox.offsetWidth - 20;
-        const maxY = window.innerHeight - infoBox.offsetHeight - 20;
-        
-        infoBox.style.left = `${Math.min(planet.x + 15, maxX)}px`;
-        infoBox.style.top = `${Math.min(planet.y + 15, maxY)}px`;
-        
-        // Обновление содержимого
+      });
+  
+      const infoBox = document.getElementById("planet-info");
+      if (hoveredPlanet) {
+        infoBox.style.left = `${hoveredPlanet.x + 15}px`;
+        infoBox.style.top = `${hoveredPlanet.y + 15}px`;
+        document.getElementById("planet-img").src = hoveredPlanet.img;
+        document.getElementById("planet-name").textContent = hoveredPlanet.name;
+        document.getElementById("planet-desc").textContent =
+          hoveredPlanet.description;
         infoBox.style.display = "block";
-        document.getElementById("planet-img").src = planet.img;
-        document.getElementById("planet-name").textContent = planet.name;
-        document.getElementById("planet-desc").textContent = planet.description;
+      } else {
+        infoBox.style.display = "none";
       }
-      
-      function showConstellationCard(card, x, y) {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile) {
-          card.style.left = "10px";
-          card.style.top = "10px";
-          card.style.right = "10px";
-          card.style.bottom = "auto";
-        } else {
-          card.style.left = `${x + 15}px`;
-          card.style.top = `${y + 15}px`;
-        }
-      }
+    }
   
     const solarSystem = [
       {
