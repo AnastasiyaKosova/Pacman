@@ -1,212 +1,259 @@
-body {
+  /* Общие стили */
+  body, html {
     margin: 0;
+    padding: 0;
+    height: 100%;
     overflow: hidden;
-    background-color: black;
-    font-family: sans-serif;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(45deg, #000428, #004e92);
     color: white;
 }
 
+/* Стили для стартового экрана */
+#start-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    z-index: 2;
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#start-screen h1 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    background: linear-gradient(90deg, #00b4d8, #90e0ef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#start-btn {
+    background: linear-gradient(45deg, #00b4d8, #0077b6);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 1em;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+#start-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+}
+
+#start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 180, 216, 0.5);
+}
+
+#start-btn:hover::before {
+    left: 100%;
+}
+
+/* Стили для канваса */
 canvas {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1;
 }
 
-#start-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: black;
+/* Стили для элементов управления */
+.controls {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 3;
+    font-size: 0.8em;
+}
+
+/* Стили для карточек созвездий */
+#constellation-cards {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
+    gap: 8px;
+    max-height: 180px;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 5px;
+    border-radius: 8px;
 }
 
-#start-btn {
-    padding: 10px 20px;
-    font-size: 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
+/* Стили для информации о планете */
 #planet-info {
     position: absolute;
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid #fff;
+    color: white;
+    padding: 8px;
     border-radius: 8px;
-    padding: 10px;
-    color: #fff;
     display: none;
-    z-index: 3;
-    max-width: 300px;
+    pointer-events: none;
+    font-family: Arial, sans-serif;
+    max-width: 200px;
+    z-index: 4;
+    font-size: 0.75em;
 }
 
 #planet-info img {
     width: 100%;
     border-radius: 5px;
-    margin-bottom: 5px;
 }
 
-
-
-.constellation-card {
-    position: fixed;
-    background: rgba(0, 0, 0, 0.9);
-    border: 1px solid #fff;
-    border-radius: 8px;
-    padding: 10px;
-    color: #fff;
-    display: none;
-    pointer-events: none;
-    max-width: 90%; /* Adjust for mobile */
-    width: auto;
-    min-width: 200px;
-    max-height: 70vh;
-    overflow-y: auto;
-    backdrop-filter: blur(5px);
+#planet-info h3 {
+    margin: 3px 0 2px;
+    font-size: 1em;
 }
 
-.constellation-card h4 {
-    margin: 0 0 8px 0;
-    font-size: 1.1em;
-}
-
-.constellation-card p {
-    margin: 0 0 8px 0;
-    font-size: 0.9em;
-    line-height: 1.4;
-}
-
-.constellation-card p.myth {
-    font-style: italic;
+#planet-info p {
     font-size: 0.8em;
-    color: #aaa;
-    margin: 8px 0;
 }
 
-.constellation-card img {
-    width: 100%;
-    height: 120px;
-    object-fit: contain;
-    object-position: center;
-    border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-#lessons {
-    position: fixed;
-    top: 10px;
+/* Стили для кнопок уроков */
+#showStarsLessonBtn,
+#showGalaxiesLessonBtn,
+#showHistoryLessonBtn,
+#showExplorationLessonBtn {
+    position: absolute;
     left: 10px;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-}
-
-#lessons button {
+    z-index: 3;
     padding: 8px 12px;
-    margin: 5px;
-    background-color: #333;
-    color: white;
     border: none;
-    cursor: pointer;
     border-radius: 5px;
-    font-size: 14px;
+    background: rgba(0, 116, 179, 0.8);
+    color: white;
+    cursor: pointer;
+    font-size: 0.7em;
 }
 
+#showStarsLessonBtn { top: 10px; }
+#showGalaxiesLessonBtn { top: 45px; }
+#showHistoryLessonBtn { top: 80px; }
+#showExplorationLessonBtn { top: 115px; }
+
+/* Стили для окна уроков */
 #lessonBox {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.9);
-    border: 1px solid #fff;
-    border-radius: 8px;
-    padding: 20px;
-    color: #fff;
-    z-index: 6;
     display: none;
-    max-width: 80%;
-    max-height: 80vh;
-    overflow-y: auto;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 300px;
+    z-index: 4;
+    font-size: 0.75em;
 }
 
 #lessonBox h2 {
-    margin-top: 0;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+#quizContainer {
+    margin-top: 10px;
+}
+
+#quizQuestion {
+    font-weight: bold;
+}
+
+#quizOptions {
+    margin-top: 5px;
 }
 
 #quizOptions button {
-    padding: 10px 15px;
-    margin: 5px;
-    background-color: #333;
-    color: white;
+    display: block;
+    margin-bottom: 3px;
+    padding: 5px 10px;
     border: none;
-    cursor: pointer;
     border-radius: 5px;
-    font-size: 16px;
+    background: rgba(0, 116, 179, 0.8);
+    color: white;
+    cursor: pointer;
+    font-size: 0.7em;
 }
 
 #nextQuestionBtn {
-    padding: 10px 15px;
-    background-color: #4CAF50;
-    color: white;
+    margin-top: 8px;
+    padding: 5px 10px;
     border: none;
-    cursor: pointer;
     border-radius: 5px;
-    font-size: 16px;
-    display: none;
+    background: rgba(0, 116, 179, 0.8);
+    color: white;
+    cursor: pointer;
+    font-size: 0.7em;
 }
 
-/* Mobile Styles */
-@media (max-width: 768px) {
-    #lessons {
-        left: 5px;
-        top: 5px;
+/* Адаптивные стили для экранов меньше 600px */
+@media (max-width: 600px) {
+    #start-screen {
+        width: 90%;
+        padding: 15px;
     }
 
-    #lessons button {
-        padding: 6px 10px;
-        font-size: 12px;
-        margin: 3px;
-    }
-
-    #lessonBox {
-        max-width: 95%;
-        max-height: 90vh;
-        padding: 10px;
-    }
-
-    #lessonBox h2 {
+    #start-screen h1 {
         font-size: 1.5em;
+        margin-bottom: 10px;
     }
 
-    #lessonContent {
+    #start-btn {
+        padding: 8px 20px;
         font-size: 0.9em;
     }
 
-    #quizQuestion {
-        font-size: 1em;
+    .controls {
+        font-size: 0.7em;
+        padding: 8px;
     }
 
-    #quizOptions button {
-        font-size: 14px;
-        padding: 8px 12px;
+    #constellation-cards {
+        max-height: 30vh;
+        font-size: 0.7em;
+        padding: 3px;
     }
 
-    .constellation-card {
-        max-width: 95%; /* Further adjust for smaller screens */
-        font-size: 0.85em; /* Smaller font size for better readability */
+    #planet-info {
+        max-width: 150px;
+        font-size: 0.65em;
     }
 
-    .constellation-card h4 {
-        font-size: 1em;
+    #showStarsLessonBtn,
+    #showGalaxiesLessonBtn,
+    #showHistoryLessonBtn,
+    #showExplorationLessonBtn {
+        padding: 6px 10px;
+        font-size: 0.6em;
+    }
+
+    #lessonBox {
+        width: 90%;
+        max-width: none;
+        font-size: 0.7em;
+        padding: 15px;
     }
 }
