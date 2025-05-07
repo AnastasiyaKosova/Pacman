@@ -801,3 +801,31 @@ document.getElementById("start-btn").addEventListener("click", () => {
     );
   });
 });
+const audio = document.getElementById("background-music");
+  const muteBtn = document.getElementById("toggle-mute");
+  const playPauseBtn = document.getElementById("play-pause");
+  const volDownBtn = document.getElementById("vol-down");
+  const volUpBtn = document.getElementById("vol-up");
+
+  muteBtn.addEventListener("click", () => {
+    audio.muted = !audio.muted;
+    muteBtn.textContent = audio.muted ? "🔇" : "🔈";
+  });
+
+  playPauseBtn.addEventListener("click", () => {
+    if (audio.paused) {
+      audio.play();
+      playPauseBtn.textContent = "⏸️";
+    } else {
+      audio.pause();
+      playPauseBtn.textContent = "▶️";
+    }
+  });
+
+  volDownBtn.addEventListener("click", () => {
+    audio.volume = Math.max(0, audio.volume - 0.1);
+  });
+
+  volUpBtn.addEventListener("click", () => {
+    audio.volume = Math.min(1, audio.volume + 0.1);
+  });
