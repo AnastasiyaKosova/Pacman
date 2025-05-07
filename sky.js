@@ -2,22 +2,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.getElementById("sky");
     const ctx = canvas.getContext("2d");
   
-    // Устанавливаем размеры канваса на весь экран
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   
-    resizeCanvas(); // Инициализация размеров
-    window.addEventListener("resize", resizeCanvas); // Обновление при изменении размера окна
-  
-    let stars = [];
-    let constellations = [];
+    let stars = []; //звезды
+    let constellations = []; //созвездия
     let hoveredConstellation = null;
     let hoveredStar = null;
     let isMouseDown = false;
   
-    const FOV = 300;
+    const FOV = 300; //поля обзора,углы вращения и скорость звезд.НЕ ТРОГАТЬ!
     let rotationX = 0;
     let rotationY = 0;
     let targetRotX = 0;
@@ -25,81 +19,52 @@ document.addEventListener("DOMContentLoaded", () => {
     let targetRotationSpeed = 0.05;
     const starSize = 1.5;
   
-    let meteors = [];
+    let meteors = []; // метеоры
   
-    // Обработчики событий мыши
     canvas.addEventListener("mousedown", () => (isMouseDown = true));
     canvas.addEventListener("mouseup", () => (isMouseDown = false));
     canvas.addEventListener("mouseleave", () => (isMouseDown = false));
   
     canvas.addEventListener("mousemove", (e) => {
-      handleMouseMove(e.clientX, e.clientY);
+      const mouseX = e.clientX; // координаты мыши
+      const mouseY = e.clientY;
+      hoveredConstellation = getHoveredConstellation(mouseX, mouseY); // наведена ли мышь на созвездие
+      hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY); // если наведена
+  
       if (isMouseDown) {
-        targetRotY += e.movementX * 0.005;
+        targetRotY += e.movementX * 0.005; // если нажата мышь ВР СФЕРЫ
         targetRotX += e.movementY * 0.005;
       }
-    });
   
-    // Обработчики событий касания
-    let touchStartX = 0;
-    let touchStartY = 0;
+      const rect = canvas.getBoundingClientRect(); // координаты мыши отн канваса
+      const canvasX = e.clientX - rect.left;
+      const canvasY = e.clientY - rect.top;
   
-    canvas.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      isMouseDown = true;
-      const touch = e.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-      handleMouseMove(touch.clientX, touch.clientY); // Обработка касания как наведения
-    });
-  
-    canvas.addEventListener("touchmove", (e) => {
-      e.preventDefault();
-      if (!isMouseDown) return;
-      const touch = e.touches[0];
-      const dx = touch.clientX - touchStartX;
-      const dy = touch.clientY - touchStartY;
-      targetRotY += dx * 0.005;
-      targetRotX += dy * 0.005;
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-      handleMouseMove(touch.clientX, touch.clientY);
-    });
-  
-    canvas.addEventListener("touchend", () => (isMouseDown = false));
-    canvas.addEventListener("touchcancel", () => (isMouseDown = false));
-  
-    function handleMouseMove(mouseX, mouseY) {
-      // Унифицированная функция для обработки движения мыши и касания
-      hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
-      hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY);
-  
-      const rect = canvas.getBoundingClientRect();
-      const canvasX = mouseX - rect.left;
-      const canvasY = mouseY - rect.top;
-  
-      let hoveredPlanet = null;
-      const time = Date.now() * 0.002;
+      let hoveredPlanet = null; // для планет при наведении
+      const time = Date.now() * 0.002; // вращение планет
   
       solarSystem.forEach((planet) => {
-        const angle = time * planet.speed + solarSystem.indexOf(planet);
-        const x3D = Math.cos(angle) * planet.distance;
+        // все объекты в массиве solSys
+        const angle = time * planet.speed + solarSystem.indexOf(planet); // угол
+        const x3D = Math.cos(angle) * planet.distance; // 3d коры планеты на орбите
         const y3D = Math.sin(angle) * planet.distance * Math.cos(planet.tilt);
         const z3D = Math.sin(angle) * planet.distance * Math.sin(planet.tilt);
   
         const rotated = rotateStar(
+          // вращение
           { x: x3D, y: y3D, z: z3D },
           rotationX,
           rotationY
         );
-        const [x, y] = project(rotated);
-        const dist = Math.hypot(canvasX - x, canvasY - y);
+        const [x, y] = project(rotated); // коры 2д
+        const dist = Math.hypot(canvasX - x, canvasY - y); // расстояние между мышью и проекцией планеты
   
         if (dist < planet.size + 15) {
+          // если мышь в пред планеты
           hoveredPlanet = {
             ...planet,
-            x: mouseX,
-            y: mouseY,
+            x: e.clientX,
+            y: e.clientY,
           };
         }
       });
@@ -116,9 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         infoBox.style.display = "none";
       }
-    }
+    });
   
     const solarSystem = [
+          //солн сист
       {
         name: "Mercury",
         distance: 0.05,
@@ -629,6 +595,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }));
   
           // Рендер карточек (не менять!!!!)
+          // Рендер карточек
           const container = document.getElementById("constellation-cards");
           container.innerHTML = "";
           data.forEach((c) => {
@@ -648,7 +615,6 @@ document.addEventListener("DOMContentLoaded", () => {
           min-width: 200px;
           max-height: 70vh;
           overflow-y: hidden;
-          overflow-x: hidden;
           backdrop-filter: blur(5px);
       `;
   
@@ -675,7 +641,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 "font-style: italic; font-size: 0.8em; color: #aaa; margin: 8px 0;";
               card.appendChild(myth);
             }
-  
             // Изображение
             if (c.image) {
               const imgWrapper = document.createElement("div");
@@ -689,7 +654,7 @@ document.addEventListener("DOMContentLoaded", () => {
               width: 100%;
               height: 100%;
               object-fit: contain;
-              object-position: center;
+              object-position: center; 
               border-radius: 0.5px;
               border: 1px solid rgba(255,255,255,0.1);
           `;
@@ -848,4 +813,5 @@ document.addEventListener("DOMContentLoaded", () => {
           e
         );
       });
-    }); 
+    });
+  
