@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let isMouseDown = false;
   
     const FOV = 300; //поля обзора,углы вращения и скорость звезд.НЕ ТРОГАТЬ!
+    let touchStartX = 0;
+    let touchStartY = 0;
     let rotationX = 0;
     let rotationY = 0;
     let targetRotX = 0;
@@ -24,6 +26,34 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.addEventListener("mousedown", () => (isMouseDown = true));
     canvas.addEventListener("mouseup", () => (isMouseDown = false));
     canvas.addEventListener("mouseleave", () => (isMouseDown = false));
+
+
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        isMouseDown = true;
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isMouseDown) return;
+        
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        
+        targetRotY += deltaX * 0.005;
+        targetRotX += deltaY * 0.005;
+        
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+    });
+    
+    canvas.addEventListener('touchend', () => {
+        isMouseDown = false;
+    });
   
     canvas.addEventListener("mousemove", (e) => {
       const mouseX = e.clientX; // координаты мыши
