@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Интерактивное Звездное Небо</title>
+    <title>Callisto</title>
     <style>
         /* Общие стили */
         body, html {
@@ -73,15 +73,16 @@
             left: 100%;
         }
 
-        /* Стили для канваса */
+        /* Стили для канваса (изначально скрыт) */
         canvas {
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1;
+            display: none; /* Изначально скрываем */
         }
 
-        /* Стили для элементов управления */
+        /* Стили для элементов управления (изначально скрыты) */
         .controls {
             position: absolute;
             bottom: 10px;
@@ -91,9 +92,10 @@
             border-radius: 8px;
             z-index: 3;
             font-size: 0.8em;
+            display: none; /* Изначально скрываем */
         }
 
-        /* Стили для карточек созвездий */
+        /* Стили для карточек созвездий (изначально скрыты) */
         #constellation-cards {
             position: absolute;
             top: 10px;
@@ -107,9 +109,10 @@
             background: rgba(0, 0, 0, 0.7);
             padding: 5px;
             border-radius: 8px;
+            display: none; /* Изначально скрываем */
         }
 
-        /* Стили для информации о планете */
+        /* Стили для информации о планете (изначально скрыта) */
         #planet-info {
             position: absolute;
             background: rgba(0, 0, 0, 0.8);
@@ -138,7 +141,7 @@
             font-size: 0.8em;
         }
 
-        /* Стили для кнопок уроков */
+        /* Стили для кнопок уроков (изначально скрыты) */
         #showStarsLessonBtn,
         #showGalaxiesLessonBtn,
         #showHistoryLessonBtn,
@@ -153,6 +156,7 @@
             color: white;
             cursor: pointer;
             font-size: 0.7em;
+        
         }
 
         #showStarsLessonBtn { top: 10px; }
@@ -160,9 +164,8 @@
         #showHistoryLessonBtn { top: 80px; }
         #showExplorationLessonBtn { top: 115px; }
 
-        /* Стили для окна уроков */
+        /* Стили для окна уроков (всегда отображается) */
         #lessonBox {
-            display: none;
             position: absolute;
             top: 10px;
             right: 10px;
@@ -308,6 +311,19 @@
         Ваш браузер не поддерживает элемент audio.
     </audio>
 
+    <script>
+        document.getElementById('start-btn').addEventListener('click', function() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('sky').style.display = 'block';
+            document.querySelector('.controls').style.display = 'block';
+            document.getElementById('constellation-cards').style.display = 'flex';
+            document.getElementById('planet-info').style.display = 'block';
+            document.getElementById('showStarsLessonBtn').style.display = 'block';
+            document.getElementById('showGalaxiesLessonBtn').style.display = 'block';
+            document.getElementById('showHistoryLessonBtn').style.display = 'block';
+            document.getElementById('showExplorationLessonBtn').style.display = 'block';
+        });
+    </script>
     <script src="sky.js"></script>
 </body>
 </html>
