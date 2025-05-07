@@ -45,31 +45,26 @@ document.addEventListener("DOMContentLoaded", () => {
     let touchStartY = 0;
   
     canvas.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        isMouseDown = true;
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        handleMouseMove(touch.clientX, touch.clientY);
-      });
-      
-      canvas.addEventListener("touchmove", (e) => {
-        e.preventDefault();
-        if (!isMouseDown) return;
-        const touch = e.touches[0];
-        const dx = touch.clientX - touchStartX;
-        const dy = touch.clientY - touchStartY;
-        
-        // Увеличим чувствительность для мобильных устройств
-        targetRotY += dx * 0.02;
-        targetRotX += dy * 0.02;
-        
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        handleMouseMove(touch.clientX, touch.clientY);
-      });
-
-      
+      e.preventDefault();
+      isMouseDown = true;
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      handleMouseMove(touch.clientX, touch.clientY); // Обработка касания как наведения
+    });
+  
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (!isMouseDown) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      targetRotY += dx * 0.005;
+      targetRotX += dy * 0.005;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      handleMouseMove(touch.clientX, touch.clientY);
+    });
   
     canvas.addEventListener("touchend", () => (isMouseDown = false));
     canvas.addEventListener("touchcancel", () => (isMouseDown = false));
@@ -853,4 +848,4 @@ document.addEventListener("DOMContentLoaded", () => {
           e
         );
       });
-    });
+    }); 
