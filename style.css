@@ -68,6 +68,25 @@ canvas {
     z-index: 1000;
     display: none; /* Скрываем кнопку изначально */
 }
+.constellation-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.constellation-card::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+}
+
+.constellation-card::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
+
+.constellation-card h4 {
+    color: #7ab8ff;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 6px;
+}
   
   @media (max-width: 600px) {
     #planet-info {
