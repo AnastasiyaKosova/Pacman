@@ -550,6 +550,164 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return colors[spectralType] || { r: 255, g: 255, b: 255 }; // По умолчанию белый
     }
+    
+    function loadConstellations() {
+        fetch("constellations.json")
+            .then((res) => res.json())
+            .then((data) => {
+                constellations = data.map((c) => ({
+                    name: c.name,
+                    stars: c.stars.map((s) => {
+                        const pos = raDecToXYZ(s.ra, s.dec);
+                        return {
+                            ...pos,
+                            ra: s.ra,
+                            dec: s.dec,
+                            name: s.name,
+                            magnitude: s.magnitude,
+                        };
+                    }),
+                    lines: c.lines,
+                    image: c.image,
+                    info: c.info || "Нет информации",
+                    myth: c.myth || "",
+                }));
+
+                // Рендер карточек
+                const container = document.getElementById("constellation-cards");
+                container.innerHTML = "";
+                data.forEach((c, index) => {
+                    const card = document.createElement("div");
+                    card.className = "constellation-card";
+                    card.style.cssText = `
+                        position: fixed;
+                        background: rgba(0,0,0,0.9);
+                        border: 1px solid #fff;
+                        border-radius: 8px;
+                        padding: 0px;
+                        color: #fff;
+                        display: none;
+                        pointer-events: none;
+                        max-width: 300px;
+                        width: auto;
+                        min-width: 200px;
+                        max-height: 70vh;
+                        overflow-y: auto;
+                        backdrop-filter: blur(5px);
+                    `;
+
+                    // Заголовок
+                    const title = document.createElement("h4");
+                    title.textContent = c.name;
+                    title.style.cssText = "margin: 0 0 8px 0; font-size: 1.1em;";
+                    card.appendChild(title);
+
+                    // Описание
+                    if (c.info) {
+                        const desc = document.createElement("p");
+                        desc.textContent = c.info;
+                        desc.style.cssText =
+                            "margin: 0 0 8px 0; font-size: 0.9em; line-height: 1.4;";
+                        card.appendChild(desc);
+                    }
+
+                    // Мифология
+                    if (c.myth) {
+                        const myth = document.createElement("p");
+                        myth.textContent = c.myth;
+                        myth.style.cssText =
+                            "font-style: italic; font-size: 0.8em; color: #aaa; margin: 8px 0;";
+                        card.appendChild(myth);
+                    }
+
+                    // Изображение
+                    if (c.image) {
+                        const imgWrapper = document.createElement("div");
+                        imgWrapper.style.cssText =
+                            "width: 100%; height: 120px; position: relative;";
+
+                        const img = document.createElement("img");
+                        img.src = c.image;
+                        img.alt = c.name;
+                        img.style.cssText = `
+                            width: 100%;
+                            height: 100%;
+                            object-fit: contain; /* Изменено на contain */
+                            object-position: center; /* Центрируем изображение */
+                            border-radius: 0.5px;
+                            border: 1px solid rgba(255,255,255,0.1);
+                        `;
+                        img.onerror = () => {
+                            console.error(`Failed to load image for ${c.name}`);
+                            imgWrapper.innerHTML = "Image not available"; // Fallback
+                        };
+
+                        imgWrapper.appendChild(img);
+                        card.appendChild(imgWrapper);
+                    }
+
+                    container.appendChild(card);
+                });
+                 // После создания карточек запускаем код для адаптивного позиционирования
+                 const cards = document.querySelectorAll(".constellation-card");
+                 cards.forEach((card) => {
+                     // Получаем размеры карточки и окна
+                     const cardWidth = card.offsetWidth;
+                     const cardHeight = card.offsetHeight;
+                     const windowWidth = window.innerWidth;
+                     const windowHeight = window.innerHeight;
+ 
+                     // Вычисляем начальную позицию карточки (например, в центре экрана)
+                     let cardLeft = (windowWidth - cardWidth) / 2;
+                     let cardTop = (windowHeight - cardHeight) / 2;
+ 
+                     // Корректируем позицию, чтобы карточка не выходила за пределы экрана
+                     if (cardLeft + cardWidth > windowWidth) {
+                         cardLeft = windowWidth - cardWidth - 10; // Отступ 10px от правого края
+                     }
+                     if (cardLeft < 0) {
+                         cardLeft = 10; // Отступ 10px от левого края
+                     }
+                     if (cardTop + cardHeight > windowHeight) {
+                         cardTop = windowHeight - cardHeight - 10; // Отступ 10px от нижнего края
+                     }
+                     if (cardTop < 0) {
+                         cardTop = 10; // Отступ 10px от верхнего края
+                     }
+ 
+                     // Устанавливаем скорректированную позицию
+                     card.style.left = `${cardLeft}px`;
+                     card.style.top = `${cardTop}px`;
+                 });
+
+                // запуск анимации
+                generateStars(2000);
+                draw();
+                setInterval(spawnMeteor, 1000);
+            })
+            .catch(console.error);
+    }
+
+    function raDecToXYZ(ra, dec) {
+        const raRad = (ra / 24) * 2 * Math.PI;
+        const decRad = (dec * Math.PI) / 180;
+        return {
+            x: Math.cos(decRad) * Math.cos(raRad),
+            y: Math.cos(decRad) * Math.sin(raRad),
+            z: Math.sin(decRad),
+        };
+    }
+
+    const startButton = document.getElementById("start-btn");
+    const startScreen = document.getElementById("start-screen");
+
+    startButton.addEventListener("click", () => {
+        startScreen.style.display = "none";
+        canvas.style.display = "block";
+        loadConstellations();
+    });
+
+    // Обработчик для карточек созвездий (добавлен сюда)
     canvas.addEventListener("mousemove", (e) => {
         const rect = canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
@@ -557,10 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let foundIndex = -1;
 
         constellations.forEach((c, i) => {
-            // ищем, над каким созвездием сейчас курсор
-
             const proj = c.stars.map((s) => {
-                // изменить
                 const r = rotateStar(s, rotationX, rotationY);
                 return project(r);
             });
@@ -619,132 +774,6 @@ document.addEventListener("DOMContentLoaded", () => {
             card.style.top = `${cardTop}px`;
         }
     });
-    function loadConstellations() {
-        fetch("constellations.json")
-            .then((res) => res.json())
-            .then((data) => {
-                constellations = data.map((c) => ({
-                    name: c.name,
-                    // сохраняем поля звезды
-                    stars: c.stars.map((s) => {
-                        const pos = raDecToXYZ(s.ra, s.dec);
-                        return {
-                            ...pos, // x, y, z
-                            ra: s.ra, // исходное RA
-                            dec: s.dec, // исходное Dec
-                            name: s.name, // название звезды, если есть
-                            magnitude: s.magnitude, // блеск, если есть
-                        };
-                    }),
-                    lines: c.lines,
-                    image: c.image,
-                    info: c.info || "Нет информации",
-                    myth: c.myth || "", // Add myth
-                }));
-
-                // Рендер карточек (не менять!!!!)
-                // Рендер карточек
-                const container = document.getElementById("constellation-cards");
-                container.innerHTML = "";
-                data.forEach((c) => {
-                    const card = document.createElement("div");
-                    card.className = "constellation-card";
-                    card.style.cssText = `
-                    position: fixed;
-                    background: rgba(0,0,0,0.9);
-                    border: 1px solid #fff;
-                    border-radius: 8px;
-                    padding: 0px;
-                    color: #fff;
-                    display: none;
-                    pointer-events: none;
-                    max-width: 300px;
-                    width: auto;
-                    min-width: 200px;
-                    max-height: 70vh;
-                    overflow-y: auto;
-                    backdrop-filter: blur(5px);
-                `;
-
-                    // Заголовок
-                    const title = document.createElement("h4");
-                    title.textContent = c.name;
-                    title.style.cssText = "margin: 0 0 8px 0; font-size: 1.1em;";
-                    card.appendChild(title);
-
-                    // Описание
-                    if (c.info) {
-                        const desc = document.createElement("p");
-                        desc.textContent = c.info;
-                        desc.style.cssText =
-                            "margin: 0 0 8px 0; font-size: 0.9em; line-height: 1.4;";
-                        card.appendChild(desc);
-                    }
-
-                    // Мифология
-                    if (c.myth) {
-                        const myth = document.createElement("p");
-                        myth.textContent = c.myth;
-                        myth.style.cssText =
-                            "font-style: italic; font-size: 0.8em; color: #aaa; margin: 8px 0;";
-                        card.appendChild(myth);
-                    }
-
-                    // Изображение
-                    if (c.image) {
-                        const imgWrapper = document.createElement("div");
-                        imgWrapper.style.cssText =
-                            "width: 100%; height: 120px; position: relative;";
-
-                        const img = document.createElement("img");
-                        img.src = c.image;
-                        img.alt = c.name;
-                        img.style.cssText = `
-                        width: 100%;
-                        height: 100%;
-                        object-fit: contain; /* Изменено на contain */
-                        object-position: center; /* Центрируем изображение */
-                        border-radius: 0.5px;
-                        border: 1px solid rgba(255,255,255,0.1);
-                    `;
-                        img.onerror = () => {
-                            console.error(`Failed to load image for ${c.name}`);
-                            imgWrapper.innerHTML = "Image not available"; // Fallback
-                        };
-
-                        imgWrapper.appendChild(img);
-                        card.appendChild(imgWrapper);
-                    }
-
-                    container.appendChild(card);
-                });
-
-                // запуск анимации
-                generateStars(2000);
-                draw();
-                setInterval(spawnMeteor, 1000);
-            })
-            .catch(console.error);
-    }
-
-    function raDecToXYZ(ra, dec) {
-        const raRad = (ra / 24) * 2 * Math.PI;
-        const decRad = (dec * Math.PI) / 180;
-        return {
-            x: Math.cos(decRad) * Math.cos(raRad),
-            y: Math.cos(decRad) * Math.sin(raRad),
-            z: Math.sin(decRad),
-        };
-    }
-
-    const startButton = document.getElementById("start-btn");
-    const startScreen = document.getElementById("start-screen");
-
-    startButton.addEventListener("click", () => {
-        startScreen.style.display = "none";
-        canvas.style.display = "block";
-        loadConstellations();
-    });
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -760,7 +789,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.showLesson = function (id) {
         // показ урока
-        currentLesson = lessons.find((l) => l.id === id);
+        currentLesson = lessons.find((l) =>l.id === id);
         if (!currentLesson) return;
         currentQuestion = 0;
         score = 0;
