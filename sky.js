@@ -5,13 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  let stars = [];
-  let constellations = [];
+  let stars = []; //звезды
+  let constellations = []; //созвездия
   let hoveredConstellation = null;
   let hoveredStar = null;
   let isMouseDown = false;
 
-  const FOV = 300;
+  const FOV = 300; //поля обзора,углы вращения и скорость звезд.НЕ ТРОГАТЬ!
   let rotationX = 0;
   let rotationY = 0;
   let targetRotX = 0;
@@ -19,46 +19,48 @@ document.addEventListener("DOMContentLoaded", () => {
   let targetRotationSpeed = 0.05;
   const starSize = 1.5;
 
-  // Метеоры
-  let meteors = [];
+  let meteors = []; // метеоры
 
-  canvas.addEventListener("mousedown", () => (isMouseDown = true));
+  canvas.addEventListener("mousedown", () => (isMouseDown = true)); // слушатели события
   canvas.addEventListener("mouseup", () => (isMouseDown = false));
   canvas.addEventListener("mouseleave", () => (isMouseDown = false));
 
   canvas.addEventListener("mousemove", (e) => {
-    const mouseX = e.clientX;
+    const mouseX = e.clientX; // координаты мыши
     const mouseY = e.clientY;
-    hoveredConstellation = getHoveredConstellation(mouseX, mouseY);
-    hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY);
+    hoveredConstellation = getHoveredConstellation(mouseX, mouseY); // наведена ли мышь на созвездие
+    hoveredStar = hoveredConstellation ? null : getHoveredStar(mouseX, mouseY); // если наведена
 
     if (isMouseDown) {
-      targetRotY += e.movementX * 0.005;
+      targetRotY += e.movementX * 0.005; // если нажата мышь ВР СФЕРЫ
       targetRotX += e.movementY * 0.005;
     }
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect(); // координаты мыши отн канваса
     const canvasX = e.clientX - rect.left;
     const canvasY = e.clientY - rect.top;
 
-    let hoveredPlanet = null;
-    const time = Date.now() * 0.002;
+    let hoveredPlanet = null; // для планет при наведении
+    const time = Date.now() * 0.002; // вращение планет
 
     solarSystem.forEach((planet) => {
-      const angle = time * planet.speed + solarSystem.indexOf(planet);
-      const x3D = Math.cos(angle) * planet.distance;
+      // все объекты в массиве solSys
+      const angle = time * planet.speed + solarSystem.indexOf(planet); // угол
+      const x3D = Math.cos(angle) * planet.distance; // 3d коры планеты на орбите
       const y3D = Math.sin(angle) * planet.distance * Math.cos(planet.tilt);
       const z3D = Math.sin(angle) * planet.distance * Math.sin(planet.tilt);
 
       const rotated = rotateStar(
+        // вращение
         { x: x3D, y: y3D, z: z3D },
         rotationX,
         rotationY
       );
-      const [x, y] = project(rotated);
-      const dist = Math.hypot(canvasX - x, canvasY - y);
+      const [x, y] = project(rotated); // коры 2д
+      const dist = Math.hypot(canvasX - x, canvasY - y); // расстояние между мышью и проекцией планеты
 
       if (dist < planet.size + 15) {
+        // если мышь в пред планеты
         hoveredPlanet = {
           ...planet,
           x: e.clientX,
@@ -67,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    const infoBox = document.getElementById("planet-info");
+    const infoBox = document.getElementById("planet-info"); //инфо о планете
     if (hoveredPlanet) {
       infoBox.style.left = `${hoveredPlanet.x + 15}px`;
       infoBox.style.top = `${hoveredPlanet.y + 15}px`;
@@ -82,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const solarSystem = [
+    //солн сист
     {
       name: "Mercury",
       distance: 0.05,
@@ -186,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let touchStartX = 0;
   let touchStartY = 0;
   canvas.addEventListener("touchstart", (e) => {
+    // точи для моб
     e.preventDefault();
     isMouseDown = true;
     const touch = e.touches[0];
@@ -208,6 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas.addEventListener("touchend", () => (isMouseDown = false));
 
   function generateStars(count) {
+    // точи на плавное вращение неба и планет
     stars = [];
     const classes = ["O", "B", "A", "F", "G", "K", "M"];
     for (let i = 0; i < count; i++) {
@@ -226,6 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function rotateStar(star, rx, ry) {
+    // вращение звезд и планет
     let x = star.x * Math.cos(ry) - star.z * Math.sin(ry);
     let z = star.x * Math.sin(ry) + star.z * Math.cos(ry);
     let y = star.y;
@@ -236,6 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function project(star) {
+    // 3  в 2
     const scale = FOV / (FOV + star.z);
     return [
       (star.x * scale * canvas.width) / 2 + canvas.width / 2,
@@ -244,6 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getHoveredStar(mouseX, mouseY) {
+    // инфо по навед мыши на звезду
     let closest = null;
     let minDist = Infinity;
     stars.forEach((star) => {
@@ -259,6 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getHoveredConstellation(mouseX, mouseY) {
+    // инфо по навед мыши на созв
     for (const c of constellations) {
       const proj = c.stars.map((s) => {
         const r = rotateStar(s, rotationX, rotationY);
@@ -286,6 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function spawnMeteor() {
+    // рандом метеоры
     meteors.push({
       x: Math.random() * canvas.width,
       y: -50,
@@ -305,6 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function drawMeteors() {
+    // фильтр для метеоров
     meteors.forEach((m) => {
       const gradient = ctx.createLinearGradient(
         m.x,
@@ -333,6 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   function drawSolarSystem(time) {
+    // все по солн системе
     const center = project({ x: 0, y: 0, z: 0 });
 
     solarSystem.forEach((planet, index) => {
@@ -417,23 +429,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const time = Date.now() * 0.002;
 
+    // Рисуем звезды
     stars.forEach((star) => {
       const r = rotateStar(star, rotationX, rotationY);
       const [x, y] = project(r);
 
       const pulse = 0.5 + 0.5 * Math.sin(time + star.brightness * 10);
+      const starColor = getStarColor(star.spectral);
 
       ctx.beginPath();
       ctx.arc(x, y, (3 + star.brightness * 5) * pulse, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(173, 216, 230, 0.5)`;
+      ctx.fillStyle = `rgba(${starColor.r}, ${starColor.g}, ${starColor.b}, 0.7)`; // Добавим мягкое свечение
       ctx.fill();
 
       ctx.beginPath();
       ctx.arc(x, y, (1.5 + star.brightness * 2) * pulse, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(173, 216, 230, 1)`;
+      ctx.fillStyle = `rgba(${starColor.r}, ${starColor.g}, ${starColor.b}, 1)`; // Центр яркой звезды
       ctx.fill();
     });
 
+    // Рисуем созвездия
     constellations.forEach((c) => {
       const proj = c.stars.map((s) => {
         const r = rotateStar(s, rotationX, rotationY);
@@ -441,40 +456,46 @@ document.addEventListener("DOMContentLoaded", () => {
         return { x, y, z: r.z };
       });
 
+      // Рисуем линии между звездами
       c.lines.forEach(([i1, i2]) => {
         const s1 = proj[i1];
         const s2 = proj[i2];
         if (s1.z < -1 || s2.z < -1) return;
 
-        // Внешнее свечение
+        const pulseEffect = 0.5 + 0.5 * Math.sin(time + (i1 + i2) * 0.1); // Пульсация линии
+        const lineColor = getLineColor(s1, s2);
+
+        // Мягкое свечение линий
         ctx.beginPath();
         ctx.moveTo(s1.x, s1.y);
         ctx.lineTo(s2.x, s2.y);
-        ctx.strokeStyle = "rgba(0,200,255,0.2)";
-        ctx.lineWidth = 6;
+        ctx.strokeStyle = `rgba(${lineColor.r}, ${lineColor.g}, ${
+          lineColor.b
+        }, ${0.8 * pulseEffect})`;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = `rgba(${lineColor.r}, ${lineColor.g}, ${lineColor.b}, 0.7)`;
+        ctx.shadowBlur = 6;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
         ctx.stroke();
 
-        // Основная линия
-        ctx.beginPath();
-        ctx.moveTo(s1.x, s1.y);
-        ctx.lineTo(s2.x, s2.y);
-        ctx.strokeStyle = "rgba(0,200,255,0.9)";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        ctx.shadowBlur = 0;
       });
 
+      // карточки к созвездиям
       if (c === hoveredConstellation) {
         const cx = proj.reduce((a, b) => a + b.x, 0) / proj.length;
         const cy = proj.reduce((a, b) => a + b.y, 0) / proj.length;
         ctx.fillStyle = "red";
-        ctx.font = "20px Arial";
+        ctx.font = "10px Arial";
         ctx.fillText(c.name, cx + 10, cy + 10);
-        ctx.font = "16px Arial";
+        ctx.font = "12px Arial";
         ctx.fillStyle = "white";
         ctx.fillText(c.info, cx + 10, cy + 30);
       }
     });
 
+    // Рисуем звезды при наведении
     if (hoveredStar && !hoveredConstellation) {
       const r = rotateStar(hoveredStar, rotationX, rotationY);
       const [x, y] = project(r);
@@ -501,16 +522,44 @@ document.addEventListener("DOMContentLoaded", () => {
     drawSolarSystem(time);
     requestAnimationFrame(draw);
   }
+
+  // Функция для получения цвета линии между звездами
+  function getLineColor(star1, star2) {
+    const color1 = getStarColor(star1.spectral);
+    const color2 = getStarColor(star2.spectral);
+
+    // Средний цвет между двумя звездами
+    return {
+      r: (color1.r + color2.r) / 2,
+      g: (color1.g + color2.g) / 2,
+      b: (color1.b + color2.b) / 2,
+    };
+  }
+
+  // Функция для получения цвета звезды по её спектральному типу
+  function getStarColor(spectralType) {
+    const colors = {
+      O: { r: 224, g: 255, b: 255 },
+      B: { r: 176, g: 196, b: 222 },
+      A: { r: 123, g: 104, b: 238 },
+      F: { r: 135, g: 206, b: 250 },
+      K: { r: 225, g: 255, b: 224 },
+      M: { r: 220, g: 220, b: 220 },
+    };
+
+    return colors[spectralType] || { r: 255, g: 255, b: 255 }; // По умолчанию белый
+  }
   canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
     let foundIndex = -1;
 
-    // ищем, над каким созвездием сейчас курсор
     constellations.forEach((c, i) => {
-      // используем boundingBox как в getHoveredConstellation
+      // ищем, над каким созвездием сейчас курсор
+
       const proj = c.stars.map((s) => {
+        // изменить
         const r = rotateStar(s, rotationX, rotationY);
         return project(r);
       });
@@ -532,15 +581,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // спрятать все карточки
-    const cards = document.querySelectorAll(".constellation-card");
+    const cards = document.querySelectorAll(".constellation-card"); // спрятать все карточки
     cards.forEach((card) => (card.style.display = "none"));
 
-    // если нашли созвездие — показываем его карточку
     if (foundIndex >= 0) {
+      // показать карточку
       const card = cards[foundIndex];
-      card.style.display = "block";
-      // позиционируем рядом с курсором
+      card.style.display = "block"; // рядом с курсором
       card.style.left = `${e.clientX + 15}px`;
       card.style.top = `${e.clientY + 15}px`;
     }
@@ -551,7 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((data) => {
         constellations = data.map((c) => ({
           name: c.name,
-          // Сохраняем все поля звезды и добавляем x, y, z
+          // сохраняем поля звезды
           stars: c.stars.map((s) => {
             const pos = raDecToXYZ(s.ra, s.dec);
             return {
@@ -567,28 +614,35 @@ document.addEventListener("DOMContentLoaded", () => {
           info: c.info || "Нет информации",
         }));
 
-        // Рендер карточек (не меняем)
+        // Рендер карточек (не менять!!!!)
         const container = document.getElementById("constellation-cards");
         container.innerHTML = "";
         data.forEach((c) => {
           const card = document.createElement("div");
           card.className = "constellation-card";
           card.style.cssText = `
-                      position: fixed;
-                      background: rgba(0,0,0,0.7);
-                      border: 1px solid #fff;
-                      border-radius: 8px;
-                      padding: 8px;
-                      color: #fff;
-                      display: none;
-                      pointer-events: none;
-                    `;
+                        position: fixed;
+                        background: rgba(0,0,0,0.7);
+                        border: 1px solid #fff;
+                        border-radius: 8px;
+                        padding: 8px;
+                        color: #fff;
+                        display: none;
+                        pointer-events: none;
+                        width: 20%; /* Фиксированная ширина карточки */
+                        height: 50%; /* Фиксированная высота карточки */
+                      `;
           const title = document.createElement("h4");
           title.textContent = c.name;
           card.appendChild(title);
           const desc = document.createElement("p");
           desc.textContent = c.info || "";
           card.appendChild(desc);
+          const myth = document.createElement("p");
+          myth.textContent = c.myth || "";
+          myth.style.cssText =
+            "font-style: italic; font-size: 12px; margin-top: 5px;";
+          card.appendChild(myth);
           if (c.image) {
             const img = document.createElement("img");
             img.src = c.image;
@@ -599,8 +653,8 @@ document.addEventListener("DOMContentLoaded", () => {
           container.appendChild(card);
         });
 
-        // Генерируем звёзды и запускаем анимацию
-        generateStars(1000);
+        // запуск анимации
+        generateStars(2000);
         draw();
         setInterval(spawnMeteor, 1000);
       })
@@ -627,109 +681,123 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    let lessons = [];
-    let currentLesson = null;
-    let currentQuestion = 0;
-    let score = 0;
-  
-    // Загрузка уроков
-    fetch('lessons.json')
-      .then(res => res.json())
-      .then(data => lessons = data)
-      .catch(err => console.error('Ошибка загрузки lessons.json:', err));
-  
-    // Показ урока
-    window.showLesson = function(id) {
-      currentLesson = lessons.find(l => l.id === id);
-      if (!currentLesson) return;
-      currentQuestion = 0;
-      score = 0;
-  
-      document.getElementById('lessonTitle').textContent = currentLesson.title;
-      document.getElementById('lessonContent').textContent = currentLesson.content;
-  
-      document.getElementById('quizResult').textContent = '';
-      renderQuestion();
-      document.getElementById('lessonBox').style.display = 'block';
-    };
-  
-    // Закрытие урока
-    window.closeLesson = function() {
-      document.getElementById('lessonBox').style.display = 'none';
-    };
-  
-    // Отрисовать текущий вопрос
-    function renderQuestion() {
-      const q = currentLesson.quiz[currentQuestion];
-      document.getElementById('quizQuestion').textContent = `Вопрос ${currentQuestion+1}: ${q.question}`;
-  
-      const opts = document.getElementById('quizOptions');
-      opts.innerHTML = '';
-      q.options.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.textContent = opt;
-        btn.style.display = 'block';
-        btn.style.margin = '5px 0';
-        btn.onclick = () => handleAnswer(idx);
-        opts.appendChild(btn);
-      });
-  
-      document.getElementById('nextQuestionBtn').style.display = 'none';
-      document.getElementById('quizResult').textContent = '';
-    }
-  
-    // Обработка ответа
-    function handleAnswer(selected) {
-      const q = currentLesson.quiz[currentQuestion];
-      const correct = selected === q.correctIndex;
-      if (correct) score++;
-      // Подсветка
-      Array.from(document.getElementById('quizOptions').children).forEach((btn, i) => {
-        btn.style.background = i === q.correctIndex ? '#0f0' : (i === selected ? '#f00' : '#333');
+document.addEventListener("DOMContentLoaded", () => {
+  let lessons = [];
+  let currentLesson = null;
+  let currentQuestion = 0;
+  let score = 0;
+
+  fetch("lessons.json") // загрузка уроков
+    .then((res) => res.json())
+    .then((data) => (lessons = data))
+    .catch((err) => console.error("Ошибка загрузки lessons.json:", err));
+
+  window.showLesson = function (id) {
+    // показ урока
+    currentLesson = lessons.find((l) => l.id === id);
+    if (!currentLesson) return;
+    currentQuestion = 0;
+    score = 0;
+
+    document.getElementById("lessonTitle").textContent = currentLesson.title;
+    document.getElementById("lessonContent").textContent =
+      currentLesson.content;
+
+    document.getElementById("quizResult").textContent = "";
+    renderQuestion();
+    document.getElementById("lessonBox").style.display = "block";
+  };
+
+  window.closeLesson = function () {
+    // закрытие урока
+    document.getElementById("lessonBox").style.display = "none";
+  };
+
+  function renderQuestion() {
+    // текущий вопрос
+    const q = currentLesson.quiz[currentQuestion];
+    document.getElementById("quizQuestion").textContent = `Вопрос ${
+      currentQuestion + 1
+    }: ${q.question}`;
+
+    const opts = document.getElementById("quizOptions");
+    opts.innerHTML = "";
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.style.display = "block";
+      btn.style.margin = "5px 0";
+      btn.onclick = () => handleAnswer(idx);
+      opts.appendChild(btn);
+    });
+
+    document.getElementById("nextQuestionBtn").style.display = "none";
+    document.getElementById("quizResult").textContent = "";
+  }
+
+  // ответа
+  function handleAnswer(selected) {
+    const q = currentLesson.quiz[currentQuestion];
+    const correct = selected === q.correctIndex;
+    if (correct) score++;
+    // подсветка
+    Array.from(document.getElementById("quizOptions").children).forEach(
+      (btn, i) => {
+        btn.style.background =
+          i === q.correctIndex ? "#0f0" : i === selected ? "#f00" : "#333";
         btn.disabled = true;
-      });
-      // Вывод результата
-      document.getElementById('quizResult').textContent =
-        correct ? '✅ Правильно!' : '❌ Неправильно.';
-      // Показать кнопку Next или итог
-      const nextBtn = document.getElementById('nextQuestionBtn');
-      if (currentQuestion < currentLesson.quiz.length - 1) {
-        nextBtn.textContent = 'Следующий вопрос';
-        nextBtn.onclick = () => {
-          currentQuestion++;
-          renderQuestion();
-        };
-        nextBtn.style.display = 'block';
-      } else {
-        nextBtn.textContent = 'Показать результат';
-        nextBtn.onclick = showFinalResult;
-        nextBtn.style.display = 'block';
       }
+    );
+    // вывод результ
+    document.getElementById("quizResult").textContent = correct
+      ? "✅ Правильно!"
+      : "❌ Неправильно.";
+    // кнопку след или итог
+    const nextBtn = document.getElementById("nextQuestionBtn");
+    if (currentQuestion < currentLesson.quiz.length - 1) {
+      nextBtn.textContent = "Следующий вопрос";
+      nextBtn.onclick = () => {
+        currentQuestion++;
+        renderQuestion();
+      };
+      nextBtn.style.display = "block";
+    } else {
+      nextBtn.textContent = "Показать результат";
+      nextBtn.onclick = showFinalResult;
+      nextBtn.style.display = "block";
     }
-  
-    // Показываем итоговый счёт
-    function showFinalResult() {
-      document.getElementById('quizQuestion').textContent = 
-        `Вы ответили правильно на ${score} из ${currentLesson.quiz.length}.`;
-      document.getElementById('quizOptions').innerHTML = '';
-      document.getElementById('nextQuestionBtn').style.display = 'none';
-    }
-  });
+  }
+
+  // итоговый счёт
+  function showFinalResult() {
+    document.getElementById(
+      "quizQuestion"
+    ).textContent = `Вы ответили правильно на ${score} из ${currentLesson.quiz.length}.`;
+    document.getElementById("quizOptions").innerHTML = "";
+    document.getElementById("nextQuestionBtn").style.display = "none";
+  }
+});
 
 function closeLesson() {
   document.getElementById("lessonBox").style.display = "none";
 }
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("showStarsLessonBtn").onclick = () => showLesson("stars");
-  document.getElementById("showGalaxiesLessonBtn").onclick = () => showLesson("galaxies");
-  document.getElementById("showHistoryLessonBtn").onclick = () => showLesson("history");
-  document.getElementById("showExplorationLessonBtn").onclick = () => showLesson("space_exploration");
+  document.getElementById("showStarsLessonBtn").onclick = () =>
+    showLesson("stars");
+  document.getElementById("showGalaxiesLessonBtn").onclick = () =>
+    showLesson("galaxies");
+  document.getElementById("showHistoryLessonBtn").onclick = () =>
+    showLesson("history");
+  document.getElementById("showExplorationLessonBtn").onclick = () =>
+    showLesson("space_exploration");
 });
 const music = document.getElementById("background-music");
 
 document.getElementById("start-btn").addEventListener("click", () => {
-    music.play().catch((e) => {
-        console.log("Автозапуск заблокирован, пользователь должен взаимодействовать", e);
-    });
+  music.play().catch((e) => {
+    console.log(
+      "Автозапуск заблокирован, пользователь должен взаимодействовать",
+      e
+    );
+  });
 });

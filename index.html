@@ -92,7 +92,6 @@
             top: 0;
             left: 0;
             z-index: 1;
-            display: none;
         }
 
         .controls {
@@ -104,13 +103,13 @@
             padding: 15px;
             border-radius: 10px;
             z-index: 1000;
-            display: none;
         }
     </style>
 </head>
 <body>
     <div id="start-screen">
         <h1>Callisto</h1>
+        <h1>Открой небеса,где мифы живут среди звезд</h1>
         <button id="start-btn">Запуск Симуляции</button>
     </div>
     <canvas id="sky"></canvas>
@@ -120,7 +119,7 @@
     </div>
     
     <div id="constellation-cards" style="
-    position: fixed;
+    position: absolute;
     top: 20px;
     left: 20px;
     z-index: 1000;
@@ -129,7 +128,6 @@
     gap: 10px;
     max-height: 90vh;
     overflow-y: auto;
-    display: none; 
 "></div>
 
     <div id="planet-info" style="
@@ -179,40 +177,9 @@
     <button onclick="closeLesson()" style="margin-top:15px;">Закрыть</button>
   </div>
   <audio id="background-music" loop autoplay>
-    <source src="assets/music/interstellar_08. Mountains.mp3" type="audio/mp3">
+    <source src="assets/musppic/interstellar_08. Mountains.mp3" type="audio/mp3">
     Ваш браузер не поддерживает элемент audio.
 </audio>
     <script src="sky.js"></script>
-    <script src="sky.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const startButton = document.getElementById("start-btn");
-            const startScreen = document.getElementById("start-screen");
-            const canvas = document.getElementById("sky");
-            const controls = document.querySelector(".controls");
-            const constellationCards = document.getElementById("constellation-cards");
-            const lessonButtons = document.querySelectorAll('button[id^="show"]');
-
-            startButton.addEventListener("click", () => {
-                startScreen.style.display = "none";
-                canvas.style.display = "block";
-                controls.style.display = "block";
-                constellationCards.style.display = "flex";
-                lessonButtons.forEach(button => button.style.display = 'block');
-                
-                const script = document.createElement('script');
-                script.src = 'sky.js';
-                document.body.appendChild(script);
-            });
-
-            const music = document.getElementById("background-music");
-
-            startButton.addEventListener("click", () => {
-                music.play().catch((e) => {
-                    console.log("Автозапуск заблокирован, пользователь должен взаимодействовать", e);
-                });
-            });
-        });
-    </script>
 </body>
 </html>
