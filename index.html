@@ -2,48 +2,39 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Интерактивное Звездное Небо</title>
     <style>
-        * {
+        /* Общие стили */
+        body, html {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
+            height: 100%;
             overflow: hidden;
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(45deg, #000428, #004e92);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
+            color: white;
         }
 
+        /* Стили для стартового экрана */
         #start-screen {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 40px 60px;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0, 191, 255, 0.3);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
             text-align: center;
-            z-index: 1000;
-            transform: translateY(0);
-            transition: all 0.5s ease;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        #start-screen:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 70px rgba(0, 191, 255, 0.5);
-        }
-
-        h1 {
-            color: #fff;
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        #start-screen h1 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             background: linear-gradient(90deg, #00b4d8, #90e0ef);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -53,13 +44,13 @@
             background: linear-gradient(45deg, #00b4d8, #0077b6);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.2em;
-            border-radius: 30px;
+            padding: 10px 25px;
+            font-size: 1em;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
             overflow: hidden;
+            position: relative;
         }
 
         #start-btn::before {
@@ -69,24 +60,20 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0.3),
-                transparent
-            );
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             transition: 0.5s;
         }
 
         #start-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(0, 180, 216, 0.5);
+            box-shadow: 0 0 20px rgba(0, 180, 216, 0.5);
         }
 
-      #start-btn:hover::before {
-        left: 100%;
-      }
+        #start-btn:hover::before {
+            left: 100%;
+        }
 
+        /* Стили для канваса */
         canvas {
             position: fixed;
             top: 0;
@@ -94,92 +81,233 @@
             z-index: 1;
         }
 
+        /* Стили для элементов управления */
         .controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            color: white;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
             background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 10px;
-            z-index: 1000;
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 3;
+            font-size: 0.8em;
+        }
+
+        /* Стили для карточек созвездий */
+        #constellation-cards {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 40vh;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        /* Стили для информации о планете */
+        #planet-info {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            display: none;
+            pointer-events: none;
+            font-family: Arial, sans-serif;
+            max-width: 200px;
+            z-index: 4;
+            font-size: 0.75em;
+        }
+
+        #planet-info img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        #planet-info h3 {
+            margin: 3px 0 2px;
+            font-size: 1em;
+        }
+
+        #planet-info p {
+            font-size: 0.8em;
+        }
+
+        /* Стили для кнопок уроков */
+        #showStarsLessonBtn,
+        #showGalaxiesLessonBtn,
+        #showHistoryLessonBtn,
+        #showExplorationLessonBtn {
+            position: absolute;
+            left: 10px;
+            z-index: 3;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(0, 116, 179, 0.8);
+            color: white;
+            cursor: pointer;
+            font-size: 0.7em;
+        }
+
+        #showStarsLessonBtn { top: 10px; }
+        #showGalaxiesLessonBtn { top: 45px; }
+        #showHistoryLessonBtn { top: 80px; }
+        #showExplorationLessonBtn { top: 115px; }
+
+        /* Стили для окна уроков */
+        #lessonBox {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 300px;
+            z-index: 4;
+            font-size: 0.75em;
+        }
+
+        #lessonBox h2 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        #quizContainer {
+            margin-top: 10px;
+        }
+
+        #quizQuestion {
+            font-weight: bold;
+        }
+
+        #quizOptions {
+            margin-top: 5px;
+        }
+
+        #quizOptions button {
+            display: block;
+            margin-bottom: 3px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(0, 116, 179, 0.8);
+            color: white;
+            cursor: pointer;
+            font-size: 0.7em;
+        }
+
+        #nextQuestionBtn {
+            margin-top: 8px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(0, 116, 179, 0.8);
+            color: white;
+            cursor: pointer;
+            font-size: 0.7em;
+        }
+
+        /* Адаптивные стили для экранов меньше 600px */
+        @media (max-width: 600px) {
+            #start-screen {
+                width: 90%;
+                padding: 15px;
+            }
+
+            #start-screen h1 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+
+            #start-btn {
+                padding: 8px 20px;
+                font-size: 0.9em;
+            }
+
+            .controls {
+                font-size: 0.7em;
+                padding: 8px;
+            }
+
+            #constellation-cards {
+                max-height: 30vh;
+                font-size: 0.7em;
+                padding: 3px;
+            }
+
+            #planet-info {
+                max-width: 150px;
+                font-size: 0.65em;
+            }
+
+            #showStarsLessonBtn,
+            #showGalaxiesLessonBtn,
+            #showHistoryLessonBtn,
+            #showExplorationLessonBtn {
+                padding: 6px 10px;
+                font-size: 0.6em;
+            }
+
+            #lessonBox {
+                width: 90%;
+                max-width: none;
+                font-size: 0.7em;
+                padding: 15px;
+            }
         }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div id="start-screen">
         <h1>Callisto</h1>
-        <h1>Открой небеса,где мифы живут среди звезд</h1>
+        <h1>Открой небеса, где мифы живут среди звезд</h1>
         <button id="start-btn">Запуск Симуляции</button>
     </div>
     <canvas id="sky"></canvas>
     <div class="controls">
-      🔭 Используйте мышь для вращения<br />
-      📱 На сенсорных экранах - свайп
+        🔭 Используйте мышь для вращения<br>
+        📱 На сенсорных экранах - свайп
     </div>
     
-    <div id="constellation-cards" style="
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 90vh;
-    overflow-y: auto;
-"></div>
+    <div id="constellation-cards"></div>
 
-    <div id="planet-info" style="
-    position: absolute;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    display: none;
-    pointer-events: none;
-    font-family: Arial, sans-serif;
-    max-width: 250px;
-    z-index: 10;
-">
-    <img id="planet-img" src="" alt="planet" style="width: 100%; border-radius: 5px;">
-    <h3 id="planet-name" style="margin: 5px 0 2px;"></h3>
-    <p id="planet-desc" style="font-size: 14px;"></p>
-</div>
-<button id="showStarsLessonBtn" 
-        style="position:absolute; top:10px; left:10px; z-index:1000;">
-  Звёзды
-</button>
-<button id="showGalaxiesLessonBtn" 
-        style="position:absolute; top:50px; left:10px; z-index:1000;">
-  Галактики
-</button>
-<button id="showHistoryLessonBtn" 
-        style="position:absolute; top:90px; left:10px; z-index:1000;">
-  История астрономии
-</button>
-<button id="showExplorationLessonBtn" 
-        style="position:absolute; top:130px; left:10px; z-index:1000;">
-  Космические исследования
-</button>
-
-<div id="lessonBox" style="display:none; position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.85); color:#fff; padding:20px; border-radius:10px; width:320px; z-index:100;">
-    <h2 id="lessonTitle"></h2>
-    <p id="lessonContent"></p>
-  
-    <div id="quizContainer" style="margin-top:15px;">
-      <p id="quizQuestion" style="font-weight:bold;"></p>
-      <div id="quizOptions"></div>
-      <button id="nextQuestionBtn" style="margin-top:10px; display:none;">Следующий вопрос</button>
-      <p id="quizResult" style="margin-top:10px;"></p>
+    <div id="planet-info">
+        <img id="planet-img" src="" alt="planet">
+        <h3 id="planet-name"></h3>
+        <p id="planet-desc"></p>
     </div>
-  
-    <button onclick="closeLesson()" style="margin-top:15px;">Закрыть</button>
-  </div>
-  <audio id="background-music" loop autoplay>
-    <source src="assets/musppic/interstellar_08. Mountains.mp3" type="audio/mp3">
-    Ваш браузер не поддерживает элемент audio.
-</audio>
+
+    <button id="showStarsLessonBtn">Звёзды</button>
+    <button id="showGalaxiesLessonBtn">Галактики</button>
+    <button id="showHistoryLessonBtn">История астрономии</button>
+    <button id="showExplorationLessonBtn">Космические исследования</button>
+
+    <div id="lessonBox">
+        <h2 id="lessonTitle"></h2>
+        <p id="lessonContent"></p>
+        <div id="quizContainer">
+            <p id="quizQuestion"></p>
+            <div id="quizOptions"></div>
+            <button id="nextQuestionBtn">Следующий вопрос</button>
+            <p id="quizResult"></p>
+        </div>
+        <button onclick="closeLesson()">Закрыть</button>
+    </div>
+
+    <audio id="background-music" loop autoplay>
+        <source src="assets/musppic/interstellar_08. Mountains.mp3" type="audio/mp3">
+        Ваш браузер не поддерживает элемент audio.
+    </audio>
+
     <script src="sky.js"></script>
-  </body>
+</body>
 </html>
